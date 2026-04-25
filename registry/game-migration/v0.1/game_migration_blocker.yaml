@@ -1,0 +1,13 @@
+id: game_migration_blocker
+name: Game Migration Blocker
+description: Classify migration blockers and decide whether the fix belongs in framework code or the game layer.
+category: blocker_resolution
+incremental_rules:
+  - Use game-gap for source-game-specific mechanics that shared crates do not need to model.
+  - Use framework-gap for reusable framework features missing from a non-core crate.
+  - Use core-gap for missing capabilities in foundational shared types.
+  - Require generic regression tests for every core-gap or framework-gap patch.
+  - Reject game-specific names, constants, and balance numbers in shared crates.
+  - Record every blocker with classification, resolution path, and status in the blocker ledger.
+dependencies:
+  - game_migration_core

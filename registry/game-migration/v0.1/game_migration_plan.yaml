@@ -1,0 +1,13 @@
+id: game_migration_plan
+name: Game Migration Plan
+description: Planning workflow for analyzing a source game, assigning batches, and scaffolding migration artifacts.
+category: planning
+incremental_rules:
+  - Inventory every source system with its responsibilities, dependencies, data sources, and observable behavior.
+  - Map each source system onto target framework, engine, and game-layer types.
+  - Assign each system to exactly one batch and reject cross-batch dependency inversions.
+  - Define fixture formats and directory structure before migrating content.
+  - Scaffold the migration map, blocker ledger, parity glossary, and semantic gap documents early.
+  - Treat any missing framework capability discovered during planning as a classified blocker.
+dependencies:
+  - game_migration_core

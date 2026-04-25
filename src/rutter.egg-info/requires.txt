@@ -1,0 +1,7 @@
+PyYAML<7,>=6
+
+[dev]
+pytest<9,>=8
+
+[mcp]
+mcp<2,>=1.17

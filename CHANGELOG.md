@@ -1,11 +1,37 @@
 # Changelog
 
+## 0.2.0 - 2026-04-25
+
+- **release: rutter 0.2.0** — First functional registry and MCP release.
+  - Bumped package version to `0.2.0`
+  - Published the registry foundation, read-only query layer, and FastMCP server in one release slice
+  - Documented runtime usage for CLI and MCP transports
+
 ## 2026-04-25
 
-- **rutter v0.1 roadmap** — Created PRD for upgrading rutter to a Skill Registry & Package Manager.
+- **rutter registry foundation implemented** — Added the first runnable registry package and CLI.
+  - Python package scaffolded under `src/rutter/` with `rutter validate`, `rutter build-index`, and `rutter search`
+  - Added registry loader, schema checks, dependency validation, and deterministic index generation
+  - Migrated `game-migration` into `registry/game-migration/v0.1/` as atomic YAML skill assets
+  - Added focused tests for registry validation, index building, and CLI execution
+
+- **read-only query layer implemented** — Added the first MCP-friendly retrieval surface.
+  - Added `list_skill_families`, `get_skill_family`, `get_skill`, and `get_skill_dependencies`
+  - Exposed matching CLI commands: `list-families`, `get-family`, `get-skill`, and `get-dependencies`
+  - Added `src/rutter/query.py` as a thin adapter layer for future MCP tool wrapping
+
+- **MCP server implemented** — Added a real FastMCP wrapper over the read-only query layer.
+  - Added `src/rutter/mcp_server.py` with `list_skill_families`, `search_skills`, `get_skill_family`, `get_skill`, `get_skill_dependencies`, and `validate_registry` tools
+  - Added `rutter serve --transport ...` CLI support for stdio, SSE, and streamable HTTP transports
+  - Added an optional `mcp` dependency extra and focused tests for tool registration and CLI dispatch
+
+## 2026-04-25
+
+- **rutter v0.1 roadmap** — Refocused PRD around a git-backed skill registry and MCP-friendly query layer.
   - PRD: `.design/plans/PRD-rutter-skill-registry-v0.1.md`
-  - Scope: skill splitting, registry indexing, meta-agent integration, third-party skill management
-  - 5 user stories, 8 functional requirements, 4 non-goals defined
+  - Chinese PRD: `.design/plans/PRD-rutter-skill-registry-v0.1.zh-CN.md`
+  - Scope: skill splitting, registry indexing, query tools, validation, external-source integration path
+  - 6 user stories, 11 functional requirements, phased delivery defined
 
 ## 2026-04-25
 

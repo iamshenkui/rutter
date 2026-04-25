@@ -1,0 +1,26 @@
+version: 1
+families:
+  - family: game-migration
+    version: v0.1
+    name: Game Migration
+    description: Migrate an existing game onto a Rust headless framework and engine architecture while preserving semantic parity.
+    tags:
+      - migration
+      - rust
+      - game-dev
+      - orchestration
+    keywords:
+      - semantic parity
+      - framework migration
+      - headless verification
+      - deterministic traces
+    aliases:
+      - game migration
+      - game-migration
+    skill_ids:
+      - game_migration_blocker
+      - game_migration_core
+      - game_migration_migrate
+      - game_migration_plan
+      - game_migration_verify
+    manifest: game-migration/v0.1/manifest.yaml

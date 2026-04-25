@@ -1,0 +1,14 @@
+id: game_migration_core
+name: Game Migration Core
+description: Core rules for migrating an existing game onto a Rust headless framework and engine.
+category: core_rules
+incremental_rules:
+  - Preserve player-observable behavior instead of translating source code line by line.
+  - Keep framework and engine crates free of game-specific constants, types, and logic branches.
+  - Classify blockers as core-gap, framework-gap, or game-gap before changing shared crates.
+  - Verify migrated systems headlessly with deterministic traces and seed-stable randomness.
+  - Follow the fixed batch dependency order from actors through town systems.
+  - Migrate content as fixtures instead of copying source data structures into code.
+  - Gate each batch with semantic parity tests and document acceptable approximations.
+  - Keep migration artifacts, blocker ledgers, and parity documents current.
+dependencies: []

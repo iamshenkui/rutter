@@ -1,0 +1,13 @@
+id: game_migration_verify
+name: Game Migration Verify
+description: Verify a migration batch or full project with deterministic build, parity, and artifact checks.
+category: verification
+incremental_rules:
+  - Treat cargo check, cargo test, and cargo clippy warnings as release-blocking hygiene checks.
+  - Verify framework and engine crates contain no game-specific content.
+  - Run parity tests for the requested scope and investigate every mismatch as bug, approximation, or semantic drift.
+  - Confirm migration artifacts and changelog entries are complete for the verified scope.
+  - Rerun deterministic traces with the same seed and block completion if outputs diverge.
+dependencies:
+  - game_migration_core
+  - game_migration_migrate
