@@ -4,7 +4,7 @@ Git-backed Skill Registry and Query CLI for meta-agent.
 
 Rutter manages atomic skills for meta-agent's selective injection system. It provides registry indexing, validation, search, and the foundation for an MCP-friendly query layer.
 
-Current package version: `0.2.0`
+Current package version: `0.2.1`
 
 ## Design Assets
 
@@ -19,7 +19,7 @@ Current package version: `0.2.0`
 
 | Skill | Version | Description |
 |---|---|---|
-| [Game Migration](skills/game-migration/README.md) | v0.1 | Migrate existing games onto Rust headless framework + engine architecture |
+| [Game Migration](skills/game-migration/README.md) | v0.2 | Migrate existing games onto Rust headless framework + engine architecture, including UI product-sense and Unity UI recon guidance |
 
 ## Registry CLI
 
@@ -54,8 +54,8 @@ The MCP server implementation now lives in `src/rutter/mcp_server.py` and is exp
 
 ## Release Status
 
-- `0.2.0`: registry foundation, read-only query layer, and MCP server are implemented
-- bundled skill family: `game-migration@v0.1`
+- `0.2.1`: registry content update with UI migration guidance and two new atomic skills
+- bundled skill family: `game-migration@v0.2`
 
 ## Usage
 

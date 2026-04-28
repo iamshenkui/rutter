@@ -1,0 +1,13 @@
+id: game_migration_unity_ui_recon
+name: Game Migration Unity UI Recon
+description: Force a source-first workflow for Unity UI migration by inspecting prefabs, scenes, sprites, sprite atlas assets, and related source files before implementing frontend UI.
+category: planning
+incremental_rules:
+  - Name the exact Unity screen or flow in scope before starting frontend edits.
+  - Inspect prefabs, scenes, scripts, sprites, sprite atlas assets, Spine assets, and localization files before designing replacement UI.
+  - Reconstruct the original hierarchy, RectTransform layout, sorting order, and interactive targets before coding.
+  - Build an asset manifest that maps original paths, identifiers, and intended frontend usage for every important visual element.
+  - Produce a migration brief that records inspected source files, hierarchy findings, fidelity risks, and browser acceptance steps.
+  - Treat missing original assets or unknown source structure as blockers instead of substituting generic web UI.
+dependencies:
+  - game_migration_core

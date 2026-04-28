@@ -1,0 +1,13 @@
+id: game_migration_ui_product_sense
+name: Game Migration UI Product Sense
+description: Keep migrated game UI feeling like a game surface rather than a generic web page, especially for HUD, town, roster, inventory, and launch flows.
+category: review
+incremental_rules:
+  - Prefer landscape-first composition and preserve the original game's effective screen hierarchy.
+  - Keep primary gameplay state visible at a glance and place actions near the state they affect.
+  - Reject generic web layouts such as dashboard cards, marketing hero sections, or long scrolling pages for core loops.
+  - Treat text-only placeholders, missing icons, and absent game art as incomplete migration for asset-backed screens.
+  - Validate migrated UI by opening the screen, clicking representative interactions, and checking for layout breakage or console errors.
+  - For DDGC town and meta screens, preserve character identity, building iconography, and loadout preparation affordances.
+dependencies:
+  - game_migration_core

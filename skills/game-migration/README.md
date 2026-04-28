@@ -11,6 +11,8 @@ Migrate an existing game (typically Unity/C#) onto a Rust headless framework + e
 | `game-migration-migrate` | `migrate.md` | Per batch: implement migrated systems |
 | `game-migration-verify` | `verify.md` | Post-batch or CI: run verification checklist |
 | `game-migration-blocker` | `blocker.md` | When encountering framework/engine gaps |
+| `game-migration-ui-product-sense` | `ui-product-sense.md` | UI-heavy phases: keep migrated screens feeling like the original game |
+| `game-migration-unity-ui-recon` | `unity-ui-recon.md` | Before frontend UI migration: inspect Unity prefabs, scenes, atlases, and assets |
 
 ## Installation
 
@@ -87,4 +89,5 @@ No code in batch N may depend on types or logic introduced in batch > N.
 
 ## Version
 
+- **v0.2** (2026-04-29): Added UI product-sense and Unity UI recon skills for frontend-heavy migration phases
 - **v0.1** (2026-04-25): Initial skill family split from monolithic `game-migration-v0.1.md`

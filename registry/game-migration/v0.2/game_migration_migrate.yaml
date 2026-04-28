@@ -1,0 +1,13 @@
+id: game_migration_migrate
+name: Game Migration Migrate
+description: Implement one migration batch while preserving semantic parity and layer boundaries.
+category: execution
+incremental_rules:
+  - Patch shared framework code only after classifying the missing capability and proving it is reusable.
+  - Keep each migration slice scoped to the requested batch and reject out-of-order dependencies.
+  - Port source data through fixtures, adapters, or content files instead of embedding it into shared crates.
+  - Add parity or regression tests alongside migrated behavior instead of deferring verification.
+  - Update migration artifacts after each completed slice so later batches inherit accurate state.
+dependencies:
+  - game_migration_core
+  - game_migration_plan

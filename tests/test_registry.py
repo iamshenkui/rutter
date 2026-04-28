@@ -33,6 +33,8 @@ def test_build_index_contains_game_migration_family() -> None:
         "game_migration_core",
         "game_migration_migrate",
         "game_migration_plan",
+        "game_migration_ui_product_sense",
+        "game_migration_unity_ui_recon",
         "game_migration_verify",
     ]
 
@@ -45,31 +47,42 @@ def test_search_skills_matches_parity_content() -> None:
     assert "game_migration_verify" in result_ids
 
 
+def test_search_skills_matches_ui_migration_content() -> None:
+    results = search_skills(REGISTRY_ROOT, "sprite atlas")
+
+    result_ids = {item["skill_id"] for item in results}
+    assert "game_migration_unity_ui_recon" in result_ids
+
+
 def test_list_skill_families_returns_index_summaries() -> None:
     families = list_skill_families(REGISTRY_ROOT)
 
     assert families == [
         {
             "family": "game-migration",
-            "version": "v0.1",
+            "version": "v0.2",
             "name": "Game Migration",
-            "description": "Migrate an existing game onto a Rust headless framework and engine architecture while preserving semantic parity.",
-            "tags": ["migration", "rust", "game-dev", "orchestration"],
+            "description": "Migrate an existing game onto a Rust headless framework and engine architecture while preserving semantic parity, original UI intent, and source-asset fidelity.",
+            "tags": ["migration", "rust", "game-dev", "orchestration", "ui-migration"],
             "keywords": [
                 "semantic parity",
                 "framework migration",
                 "headless verification",
                 "deterministic traces",
+                "game ui",
+                "unity ui",
             ],
-            "aliases": ["game migration", "game-migration"],
+            "aliases": ["game migration", "game-migration", "unity ui migration"],
             "skill_ids": [
                 "game_migration_blocker",
                 "game_migration_core",
                 "game_migration_migrate",
                 "game_migration_plan",
+                "game_migration_ui_product_sense",
+                "game_migration_unity_ui_recon",
                 "game_migration_verify",
             ],
-            "manifest": "game-migration/v0.1/manifest.yaml",
+            "manifest": "game-migration/v0.2/manifest.yaml",
         }
     ]
 
@@ -78,12 +91,14 @@ def test_get_skill_family_returns_manifest_and_skills() -> None:
     payload = get_skill_family(REGISTRY_ROOT, "game-migration")
 
     assert payload["manifest"]["family"] == "game-migration"
-    assert payload["manifest"]["version"] == "v0.1"
+    assert payload["manifest"]["version"] == "v0.2"
     assert [skill["id"] for skill in payload["skills"]] == [
         "game_migration_blocker",
         "game_migration_core",
         "game_migration_migrate",
         "game_migration_plan",
+        "game_migration_ui_product_sense",
+        "game_migration_unity_ui_recon",
         "game_migration_verify",
     ]
 
@@ -92,9 +107,17 @@ def test_get_skill_returns_one_atomic_skill_payload() -> None:
     payload = get_skill(REGISTRY_ROOT, "game_migration_verify")
 
     assert payload["family"] == "game-migration"
-    assert payload["version"] == "v0.1"
+    assert payload["version"] == "v0.2"
     assert payload["skill"]["id"] == "game_migration_verify"
     assert payload["skill"]["category"] == "verification"
+
+
+def test_get_skill_returns_new_ui_product_sense_payload() -> None:
+    payload = get_skill(REGISTRY_ROOT, "game_migration_ui_product_sense")
+
+    assert payload["family"] == "game-migration"
+    assert payload["version"] == "v0.2"
+    assert payload["skill"]["category"] == "review"
 
 
 def test_get_skill_dependencies_resolves_direct_dependencies() -> None:
@@ -106,14 +129,14 @@ def test_get_skill_dependencies_resolves_direct_dependencies() -> None:
             {
                 "skill_id": "game_migration_core",
                 "family": "game-migration",
-                "version": "v0.1",
+                "version": "v0.2",
                 "name": "Game Migration Core",
                 "category": "core_rules",
             },
             {
                 "skill_id": "game_migration_migrate",
                 "family": "game-migration",
-                "version": "v0.1",
+                "version": "v0.2",
                 "name": "Game Migration Migrate",
                 "category": "execution",
             },

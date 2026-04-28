@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.1 - 2026-04-29
+
+- **release: rutter 0.2.1** — Expanded game-migration guidance for UI-heavy migrations.
+  - Bumped package version to `0.2.1`
+  - Upgraded the bundled `game-migration` family to `v0.2`
+  - Added `game_migration_ui_product_sense` for game-screen UI quality guidance
+  - Added `game_migration_unity_ui_recon` for source-first Unity UI migration workflow
+
 ## 0.2.0 - 2026-04-25
 
 - **release: rutter 0.2.0** — First functional registry and MCP release.
