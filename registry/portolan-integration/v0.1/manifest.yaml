@@ -20,6 +20,8 @@ aliases:
   - hermes integration
   - limenet integration
 skills:
+  - id: portolan_integration_hermes_bootstrap
+    file: portolan_integration_hermes_bootstrap.yaml
   - id: portolan_integration_system_map
     file: portolan_integration_system_map.yaml
   - id: portolan_integration_limenet_task_lifecycle

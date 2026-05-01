@@ -1,0 +1,13 @@
+id: portolan_integration_hermes_bootstrap
+name: Portolan Integration Hermes Bootstrap
+description: Tell a global Hermes agent how to discover Portolan, use rutter as the skill authority, and find LimeNet and Quartermaster without relying on per-conversation reminders.
+category: bootstrap
+incremental_rules:
+  - Invoke this bootstrap when the user mentions Portolan, LimeNet, Quartermaster, rutter, meta-agent, or Hermes adding tasks to LimeNet.
+  - Discover PORTOLAN_HOME from the environment first, then fall back to /root/projects/portolan, then ask the user once.
+  - Treat rutter under PORTOLAN_HOME as the canonical Portolan skill authority.
+  - Use LimeNet at LIMENET_BASE_URL or http://127.0.0.1:3000 as the default task backend.
+  - Retrieve the relevant Portolan integration skill from rutter before creating, claiming, submitting, or reviewing tasks.
+  - Do not require the user to remind Hermes to check rutter in every conversation.
+dependencies:
+  - portolan_integration_system_map

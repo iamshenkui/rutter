@@ -3,7 +3,8 @@
 ## 2026-05-01
 
 - **portolan integration skill family added** — Added a focused skill family for Hermes-facing system integration.
-  - Added `portolan-integration@v0.1` with `system-map`, `limenet-task-lifecycle`, and `quartermaster-review-contract`
+  - Added `portolan-integration@v0.1` with `hermes-bootstrap`, `system-map`, `limenet-task-lifecycle`, and `quartermaster-review-contract`
+  - Installed a Hermes-compatible `portolan-bootstrap` skill layout for global agent discovery
   - Documented how external control-plane clients should submit, claim, heartbeat, submit, and review tasks across LimeNet and Quartermaster
   - Synced workspace wiki and LimeNet API docs with the shared Hermes integration model
 

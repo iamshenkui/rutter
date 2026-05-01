@@ -55,6 +55,7 @@ families:
   - hermes integration
   - limenet integration
   skill_ids:
+  - portolan_integration_hermes_bootstrap
   - portolan_integration_limenet_task_lifecycle
   - portolan_integration_quartermaster_review_contract
   - portolan_integration_system_map
