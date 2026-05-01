@@ -1,0 +1,11 @@
+id: portolan_integration_system_map
+name: Portolan Integration System Map
+description: Explain which Portolan module owns task state, review truth, reusable skills, planning policy, and runtime execution glue.
+category: orientation
+incremental_rules:
+  - Treat LimeNet as the source of truth for task DAG state, leases, retries, and dependency activation.
+  - Treat Quartermaster as the source of truth for review verdicts and findings.
+  - Treat rutter as the source of truth for reusable workflow skills.
+  - Treat meta-agent as the owner of planning, decomposition, and orchestration policy.
+  - Keep Hermes focused on runtime execution and contract translation rather than redefining other modules.
+dependencies: []

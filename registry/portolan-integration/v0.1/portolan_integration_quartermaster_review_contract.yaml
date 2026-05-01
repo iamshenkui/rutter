@@ -1,0 +1,12 @@
+id: portolan_integration_quartermaster_review_contract
+name: Portolan Integration Quartermaster Review Contract
+description: Define how Hermes should package a completed attempt for Quartermaster review and how to map review verdicts back into orchestration behavior.
+category: review
+incremental_rules:
+  - Send Quartermaster one completed worker attempt at a time with task identity, repo path, diff, changed files, and validation output.
+  - Preserve Quartermaster findings, verdict, and summary as first-class review artifacts.
+  - Map APPROVED to completion, REVISION_REQUIRED to retry, NEEDS_SPLIT to replanning, and UNSAFE to policy stop.
+  - Do not invent a parallel private review schema inside Hermes.
+  - Keep review semantics independent from LimeNet state-machine ownership.
+dependencies:
+  - portolan_integration_system_map

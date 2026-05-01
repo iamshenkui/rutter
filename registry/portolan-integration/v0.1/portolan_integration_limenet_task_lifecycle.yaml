@@ -1,0 +1,12 @@
+id: portolan_integration_limenet_task_lifecycle
+name: Portolan Integration LimeNet Task Lifecycle
+description: Define the required Hermes call sequence and error handling for LimeNet task submission, claim, heartbeat, and submit flows.
+category: orchestration
+incremental_rules:
+  - Submit task graphs through POST /api/v1/tasks/batch and treat a 201 response as the acceptance signal.
+  - Claim work through POST /api/v1/tasks/claim and treat 204 as no available work rather than a failure.
+  - Renew leases through POST /api/v1/tasks/{task_id}/heartbeat only while the same agent_id still owns the task.
+  - Submit worker results through POST /api/v1/tasks/{task_id}/submit only after real work output exists.
+  - Hand submitted work to Quartermaster during EVALUATING instead of completing the task from worker self-report.
+dependencies:
+  - portolan_integration_system_map

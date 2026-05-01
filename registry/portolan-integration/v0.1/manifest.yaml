@@ -1,0 +1,28 @@
+family: portolan-integration
+version: v0.1
+name: Portolan Integration
+description: Teach Hermes and other external control-plane clients how LimeNet, Quartermaster, rutter, and meta-agent fit together during task execution and review.
+tags:
+  - orchestration
+  - control-plane
+  - task-lifecycle
+  - review
+  - integration
+keywords:
+  - Hermes
+  - LimeNet
+  - Quartermaster
+  - task submission
+  - heartbeat
+  - review contract
+aliases:
+  - portolan integration
+  - hermes integration
+  - limenet integration
+skills:
+  - id: portolan_integration_system_map
+    file: portolan_integration_system_map.yaml
+  - id: portolan_integration_limenet_task_lifecycle
+    file: portolan_integration_limenet_task_lifecycle.yaml
+  - id: portolan_integration_quartermaster_review_contract
+    file: portolan_integration_quartermaster_review_contract.yaml
