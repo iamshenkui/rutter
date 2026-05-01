@@ -37,3 +37,26 @@ class SkillFamily:
     manifest: SkillManifest
     directory: Path
     skills: dict[str, AtomicSkill]
+
+
+# ── SkillProposalBundle@v1 ──────────────────────────────────────────────
+
+VALID_PROPOSAL_SCHEMA_VERSIONS = {"v1"}
+VALID_PROPOSAL_STATUSES = {"draft", "review", "approved", "rejected"}
+VALID_PROPOSAL_ACTIONS = {"create_new_skill", "update_existing_skill"}
+VALID_RISK_LEVELS = {"low", "medium", "high"}
+
+
+@dataclass(frozen=True)
+class SkillProposalBundle:
+    schema_version: str
+    bundle_id: str
+    status: str
+    target_family: str
+    action: str
+    supporting_issues: tuple[str, ...] = ()
+    evidence_refs: tuple[str, ...] = ()
+    risk_level: str = "medium"
+    created_at: str = ""
+    target_skill_id: str | None = None
+    new_skill_id: str | None = None

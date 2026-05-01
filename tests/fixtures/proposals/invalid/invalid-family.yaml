@@ -1,0 +1,8 @@
+schema_version: v1
+bundle_id: proposal-invalid-family-001
+status: draft
+target_family: nonexistent-family
+action: create_new_skill
+new_skill_id: test_skill
+risk_level: low
+created_at: "2026-05-02T00:00:00Z"

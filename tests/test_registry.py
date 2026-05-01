@@ -57,33 +57,54 @@ def test_search_skills_matches_ui_migration_content() -> None:
 def test_list_skill_families_returns_index_summaries() -> None:
     families = list_skill_families(REGISTRY_ROOT)
 
-    assert families == [
-        {
-            "family": "game-migration",
-            "version": "v0.2",
-            "name": "Game Migration",
-            "description": "Migrate an existing game onto a Rust headless framework and engine architecture while preserving semantic parity, original UI intent, and source-asset fidelity.",
-            "tags": ["migration", "rust", "game-dev", "orchestration", "ui-migration"],
-            "keywords": [
-                "semantic parity",
-                "framework migration",
-                "headless verification",
-                "deterministic traces",
-                "game ui",
-                "unity ui",
-            ],
-            "aliases": ["game migration", "game-migration", "unity ui migration"],
-            "skill_ids": [
-                "game_migration_blocker",
-                "game_migration_core",
-                "game_migration_migrate",
-                "game_migration_plan",
-                "game_migration_ui_product_sense",
-                "game_migration_unity_ui_recon",
-                "game_migration_verify",
-            ],
-            "manifest": "game-migration/v0.2/manifest.yaml",
-        }
+    assert len(families) == 2
+
+    # game-migration should be first (sorted alphabetically)
+    assert families[0]["family"] == "game-migration"
+    assert families[0]["version"] == "v0.2"
+    assert families[0]["name"] == "Game Migration"
+    assert families[0]["description"].startswith(
+        "Migrate an existing game onto a Rust headless framework"
+    )
+    assert families[0]["tags"] == [
+        "migration",
+        "rust",
+        "game-dev",
+        "orchestration",
+        "ui-migration",
+    ]
+    assert families[0]["keywords"] == [
+        "semantic parity",
+        "framework migration",
+        "headless verification",
+        "deterministic traces",
+        "game ui",
+        "unity ui",
+    ]
+    assert families[0]["aliases"] == [
+        "game migration",
+        "game-migration",
+        "unity ui migration",
+    ]
+    assert families[0]["skill_ids"] == [
+        "game_migration_blocker",
+        "game_migration_core",
+        "game_migration_migrate",
+        "game_migration_plan",
+        "game_migration_ui_product_sense",
+        "game_migration_unity_ui_recon",
+        "game_migration_verify",
+    ]
+    assert families[0]["manifest"] == "game-migration/v0.2/manifest.yaml"
+
+    # portolan-integration should be second
+    assert families[1]["family"] == "portolan-integration"
+    assert families[1]["version"] == "v0.1"
+    assert families[1]["skill_ids"] == [
+        "portolan_integration_hermes_bootstrap",
+        "portolan_integration_limenet_task_lifecycle",
+        "portolan_integration_quartermaster_review_contract",
+        "portolan_integration_system_map",
     ]
 
 

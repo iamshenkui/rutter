@@ -1,0 +1,12 @@
+schema_version: v1
+bundle_id: proposal-20260502-valid-update-002
+status: approved
+target_family: portolan-integration
+action: update_existing_skill
+target_skill_id: portolan_integration_system_map
+supporting_issues:
+  - "Update system map with new component references"
+evidence_refs:
+  - "skills/portolan-integration/system-map.md"
+risk_level: low
+created_at: "2026-05-02T03:00:00Z"

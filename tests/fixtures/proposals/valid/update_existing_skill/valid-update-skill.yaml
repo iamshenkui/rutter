@@ -1,0 +1,12 @@
+schema_version: v1
+bundle_id: proposal-20260502-valid-update-001
+status: draft
+target_family: game-migration
+action: update_existing_skill
+target_skill_id: game_migration_verify
+supporting_issues:
+  - "Update verify skill with enhanced validation rules"
+evidence_refs:
+  - "skills/game-migration/verify.md"
+risk_level: medium
+created_at: "2026-05-02T02:00:00Z"

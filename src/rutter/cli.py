@@ -6,6 +6,7 @@ import sys
 import yaml
 
 from .mcp_server import MCP_IMPORT_ERROR, run_server
+from .proposals import dump_proposal_validation_result, validate_proposals
 from .registry import (
     RegistryLookupError,
     RegistryValidationError,
@@ -101,6 +102,26 @@ def main(argv: list[str] | None = None) -> int:
         print(yaml.safe_dump(result, sort_keys=False), end="")
         return 0
 
+    if args.command == "validate-proposals":
+        proposal_root = args.proposal_dir if args.proposal_dir else args.path
+        registry_root = args.path if args.proposal_dir else None
+        results = validate_proposals(proposal_root, registry_root=registry_root)
+        if args.json:
+            import json
+            output = dump_proposal_validation_result(results)
+            print(json.dumps(output, indent=2))
+        else:
+            for path in sorted(results):
+                errors = results[path]
+                if errors:
+                    print(f"FAIL  {path}", file=sys.stderr)
+                    for error in errors:
+                        print(f"       {error}", file=sys.stderr)
+                else:
+                    print(f"OK    {path}")
+        has_errors = any(errors for errors in results.values())
+        return 1 if has_errors else 0
+
     if args.command == "serve":
         try:
             run_server(
@@ -168,6 +189,19 @@ def _build_parser() -> argparse.ArgumentParser:
     dependencies_parser.add_argument("skill_id", help="Atomic skill id")
     dependencies_parser.add_argument(
         "--path", default=".", help="Repository root or registry directory"
+    )
+
+    validate_proposals_parser = subparsers.add_parser(
+        "validate-proposals", help="Validate SkillProposalBundle@v1 proposals against the registry"
+    )
+    validate_proposals_parser.add_argument(
+        "--path", default=".", help="Registry root (default) or proposal directory when --proposal-dir is used"
+    )
+    validate_proposals_parser.add_argument(
+        "--proposal-dir", default=None, help="Proposal directory (overrides --path for proposals)"
+    )
+    validate_proposals_parser.add_argument(
+        "--json", action="store_true", help="Output validation results as JSON"
     )
 
     serve_parser = subparsers.add_parser(
