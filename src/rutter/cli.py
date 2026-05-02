@@ -113,8 +113,8 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.command == "validate-proposals":
-        proposal_root = args.proposal_dir if args.proposal_dir else args.path
-        registry_root = args.path if args.proposal_dir else None
+        proposal_root = args.proposal_dir or str(Path(args.path) / "proposals")
+        registry_root = args.path
         validation_results = validate_proposals(proposal_root, registry_root=registry_root)
         if args.json:
             import json
