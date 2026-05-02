@@ -235,6 +235,7 @@ def main(argv: list[str] | None = None) -> int:
         try:
             run_server(
                 args.path,
+                proposal_dir=args.proposal_dir,
                 transport=args.transport,
                 host=args.host,
                 port=args.port,
