@@ -3,10 +3,10 @@ bundle_id: proposal-20260502-valid-new-001
 status: draft
 target_family: game-migration
 action: create_new_skill
-new_skill_id: game_migration_asset_optimizer
-supporting_issues:
-  - "Add asset optimization rules for game migration"
-evidence_refs:
-  - "skills/game-migration/asset-optimizer.md"
 risk_level: low
 created_at: "2026-05-02T00:00:00Z"
+new_skill_id: game_migration_asset_optimizer
+supporting_issues:
+  - "ISSUE-101"
+evidence_refs:
+  - "skills/game-migration/asset-optimizer.md"

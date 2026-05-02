@@ -1,7 +1,10 @@
 schema_version: v1
-bundle_id: proposal-missing-target-001
+bundle_id: proposal-invalid-no-target-001
 status: draft
 target_family: game-migration
 action: update_existing_skill
-risk_level: medium
+risk_level: low
 created_at: "2026-05-02T00:00:00Z"
+target_skill_id: null
+supporting_issues: []
+evidence_refs: []

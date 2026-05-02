@@ -3,6 +3,8 @@ bundle_id: proposal-invalid-risk-001
 status: draft
 target_family: game-migration
 action: create_new_skill
-new_skill_id: game_migration_test
 risk_level: critical
 created_at: "2026-05-02T00:00:00Z"
+new_skill_id: some_new_skill
+supporting_issues: []
+evidence_refs: []

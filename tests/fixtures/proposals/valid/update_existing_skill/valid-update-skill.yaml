@@ -3,10 +3,10 @@ bundle_id: proposal-20260502-valid-update-001
 status: draft
 target_family: game-migration
 action: update_existing_skill
+risk_level: high
+created_at: "2026-05-02T02:00:00Z"
 target_skill_id: game_migration_verify
 supporting_issues:
-  - "Update verify skill with enhanced validation rules"
+  - "ISSUE-202"
 evidence_refs:
-  - "skills/game-migration/verify.md"
-risk_level: medium
-created_at: "2026-05-02T02:00:00Z"
+  - "skills/game-migration/verify-enhancement.md"

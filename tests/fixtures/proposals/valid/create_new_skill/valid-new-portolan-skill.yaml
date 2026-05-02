@@ -3,10 +3,8 @@ bundle_id: proposal-20260502-valid-new-002
 status: review
 target_family: portolan-integration
 action: create_new_skill
-new_skill_id: portolan_integration_task_dispatcher
-supporting_issues:
-  - "Add task dispatching skill for portolan integration"
-evidence_refs:
-  - "skills/portolan-integration/task-dispatcher.md"
 risk_level: medium
 created_at: "2026-05-02T01:00:00Z"
+new_skill_id: portolan_integration_new_tool
+supporting_issues: []
+evidence_refs: []
