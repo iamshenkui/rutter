@@ -364,6 +364,30 @@ def test_load_proposals_missing_dir() -> None:
         assert any("not found" in e for e in exc.errors)
 
 
+def test_load_proposal_missing_created_at(tmp_path: Path) -> None:
+    """Loading a proposal without created_at should not inject bundle_id as timestamp."""
+    yaml_file = tmp_path / "test-proposal.yaml"
+    yaml_file.write_text("""\
+schema_version: "1"
+bundle_id: proposal-no-created-at
+status: proposed
+target_family: game-migration
+action: create_new_skill
+risk_level: low
+new_skill_id: test_skill
+""")
+
+    bundles = load_proposal_files(tmp_path)
+    assert len(bundles) == 1
+    bundle = bundles[0]
+    assert bundle.created_at == ""
+    assert bundle.bundle_id == "proposal-no-created-at"
+
+    # Validate round-trips cleanly
+    errors = validate_proposal(bundle)
+    assert errors == []
+
+
 # ── submit_proposal ─────────────────────────────────────────────────────
 
 

@@ -214,7 +214,7 @@ def _load_single_proposal(
         supporting_issues=tuple(supporting_issues),
         evidence_refs=tuple(evidence_refs),
         risk_level=risk_level,
-        created_at=created_at or bundle_id,
+        created_at=created_at or "",
         target_skill_id=target_skill_id,
         new_skill_id=new_skill_id,
     )
