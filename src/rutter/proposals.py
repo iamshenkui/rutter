@@ -674,11 +674,37 @@ def promote_proposal(
             "description": "No registry changes required. Proposal is informational only.",
         })
 
+    # ── State transition: accepted -> promoted ────────────────────────
+    # Update the proposal file on disk to reflect the new lifecycle state.
+    root = Path(proposal_dir).resolve()
+    existing_path: Path | None = None
+    for yaml_file in root.rglob("*.yaml"):
+        errors: list[str] = []
+        candidate = _load_single_proposal(yaml_file, errors)
+        if candidate is not None and candidate.bundle_id == bundle_id:
+            existing_path = yaml_file
+            break
+
+    if existing_path is None:
+        raise ProposalValidationError(
+            [f"Proposal file not found for bundle_id='{bundle_id}' — cannot update state"]
+        )
+
+    raw = yaml.safe_load(existing_path.read_text(encoding="utf-8"))
+    if not isinstance(raw, dict):
+        raise ProposalValidationError(
+            [f"Cannot parse existing proposal file: {existing_path}"]
+        )
+    raw["status"] = "promoted"
+    existing_path.write_text(
+        yaml.safe_dump(raw, sort_keys=False, allow_unicode=True), encoding="utf-8"
+    )
+
     plan: dict[str, Any] = {
         "promotion_plan": {
             "proposal": {
                 "bundle_id": bundle.bundle_id,
-                "status": bundle.status,
+                "status": "promoted",
                 "action": bundle.action,
                 "target_family": bundle.target_family,
                 "target_version": target_version,

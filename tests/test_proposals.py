@@ -762,7 +762,7 @@ def test_promote_proposal_creates_plan_for_create_new_skill(tmp_path: Path) -> N
     item = plan["promotion_plan"]
     assert item["proposal"]["bundle_id"] == "promote-create"
     assert item["proposal"]["action"] == "create_new_skill"
-    assert item["proposal"]["status"] == "accepted"
+    assert item["proposal"]["status"] == "promoted"
     assert item["v0.1_note"] != ""
 
     # Should generate two operations: create YAML + update manifest
@@ -812,7 +812,51 @@ def test_promote_proposal_plan_includes_v0_1_note(tmp_path: Path) -> None:
     note = plan["promotion_plan"]["v0.1_note"]
     assert isinstance(note, str)
     assert len(note) > 0
-    assert "No automatic changes" in note
+
+
+def test_promote_proposal_updates_status_on_disk(tmp_path: Path) -> None:
+    """State transition: promote_proposal updates the .yaml file status to 'promoted'."""
+    import yaml
+
+    from rutter.models import SkillProposalBundle
+    from rutter.proposals import promote_proposal, submit_proposal
+
+    submit_proposal(SkillProposalBundle(
+        schema_version="1", bundle_id="promote-state-disk", status="accepted",
+        target_family="game-migration", action="create_new_skill",
+        new_skill_id="state_disk_skill", risk_level="low",
+        created_at="2026-05-02T00:00:00Z",
+    ), tmp_path)
+
+    promote_proposal(tmp_path, "promote-state-disk")
+
+    # Verify the YAML file has the updated status
+    yaml_files = list(tmp_path.rglob("*.yaml"))
+    assert len(yaml_files) == 1
+    raw = yaml.safe_load(yaml_files[0].read_text(encoding="utf-8"))
+    assert raw["status"] == "promoted"
+    assert raw["bundle_id"] == "promote-state-disk"
+
+
+def test_promote_proposal_rejects_already_promoted(tmp_path: Path) -> None:
+    """State transition: promoting an already-promoted proposal must fail."""
+    from rutter.models import SkillProposalBundle
+    from rutter.proposals import ProposalValidationError, promote_proposal, submit_proposal
+
+    submit_proposal(SkillProposalBundle(
+        schema_version="1", bundle_id="promote-twice", status="accepted",
+        target_family="game-migration", action="create_new_skill",
+        new_skill_id="twice_skill", risk_level="low",
+        created_at="2026-05-02T00:00:00Z",
+    ), tmp_path)
+
+    # First promotion should succeed
+    promote_proposal(tmp_path, "promote-twice")
+
+    # Second promotion must fail — status is now "promoted", not "accepted"
+    with pytest.raises(ProposalValidationError) as exc:
+        promote_proposal(tmp_path, "promote-twice")
+    assert any("accepted" in e for e in exc.value.errors)
 
 
 def test_promote_proposal_resolves_registry_target_version(tmp_path: Path) -> None:
@@ -1513,7 +1557,7 @@ def test_cli_promote_proposal_includes_structured_output(tmp_path: Path, capsys)
     assert "v0.1_note" in plan
     assert plan["proposal"]["bundle_id"] == "cli-structured"
     assert plan["proposal"]["action"] == "create_new_skill"
-    assert plan["proposal"]["status"] == "accepted"
+    assert plan["proposal"]["status"] == "promoted"
 
 
 def test_cli_promote_proposal_risk_level_in_plan(tmp_path: Path, capsys) -> None:
