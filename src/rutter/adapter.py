@@ -11,12 +11,13 @@ from .models import (
 
 # ── Non-executable item patterns ─────────────────────────────────────
 # These are structural markers from split PRDs that don't represent
-# actionable proposal bundles: Phase headers, Slice boundaries, and
-# blocking descriptions.
+# actionable proposal bundles: Phase headers and Slice boundaries.
+# Block-related structural markers are handled separately in
+# _is_executable so that legitimate blocker-shaped proposals (e.g.
+# game_migration_blocker with a real action) are not dropped.
 NON_EXECUTABLE_PATTERNS: list[str] = [
     "phase",
     "slice",
-    "block",
 ]
 
 # ── Domain filter patterns ───────────────────────────────────────────
@@ -80,8 +81,11 @@ def adapt_raw_proposal(raw: dict[str, Any]) -> SkillProposalBundle:
 def adapt_proposals(raw_list: list[dict[str, Any]]) -> list[SkillProposalBundle]:
     """Adapt multiple raw proposal dicts, filtering out non-executable items.
 
-    Non-executable items are structural markers from split PRDs (Phase, Slice,
-    blocking descriptions) that don't represent actionable proposal bundles.
+    Non-executable items are structural markers from split PRDs (Phase, Slice)
+    that don't represent actionable proposal bundles. Items whose description
+    contains "block" are considered non-executable only when they lack an
+    action field — legitimate blocker-shaped proposals with proper actions
+    are preserved.
 
     Args:
         raw_list: Raw proposal dicts, possibly mixed with structural markers.
@@ -125,17 +129,26 @@ def adapt_and_filter_by_domain(
 def _is_executable(raw: dict[str, Any]) -> bool:
     """Check whether a raw entry represents an actionable proposal.
 
-    Non-executable items are structural markers (Phase, Slice, blocking
-    descriptions) that should be excluded from the adapted output.
+    Non-executable items are structural markers (Phase, Slice) that should
+    be excluded from the adapted output. Block-related descriptions are
+    excluded only when the item lacks an action field — this preserves
+    legitimate blocker-shaped proposals while dropping structural markers.
     """
     bundle_id = str(raw.get("bundle_id", "")).strip().lower()
     title = str(raw.get("title", "")).strip().lower()
     description = str(raw.get("description", "")).strip().lower()
 
+    # Phase and slice are always structural markers
     combined = f"{bundle_id} {title} {description}"
     for pattern in NON_EXECUTABLE_PATTERNS:
         if pattern in combined:
             return False
+
+    # Block-related structural markers: items whose description contains
+    # "block" but lack an action field are non-executable markers (e.g.
+    # "Blocked on external dependency"), not real proposals.
+    if not raw.get("action") and "block" in description:
+        return False
 
     # An entry without bundle_id and without action is non-executable
     if not bundle_id and not raw.get("action"):

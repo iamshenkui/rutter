@@ -286,8 +286,8 @@ class TestAdaptProposals:
         assert len(bundles) == 1
         assert bundles[0].bundle_id == "exec-002"
 
-    def test_filters_blocking_descriptions(self) -> None:
-        """Items with 'block' in description are filtered out."""
+    def test_filters_blocking_markers_without_action(self) -> None:
+        """Items with 'block' in description but no action are filtered out."""
         raws = [
             {
                 "bundle_id": "blocked-item",
@@ -304,6 +304,30 @@ class TestAdaptProposals:
         bundles = adapt_proposals(raws)
         assert len(bundles) == 1
         assert bundles[0].bundle_id == "exec-003"
+
+    def test_passes_legitimate_blocker_proposals(self) -> None:
+        """Proposals about blockers with proper action fields pass through."""
+        raws = [
+            {
+                "bundle_id": "game_migration_blocker",
+                "status": "proposed",
+                "target_family": "game-migration",
+                "action": "create_new_skill",
+                "new_skill_id": "resolve_blocker",
+                "description": "Handle the game migration blocking issue",
+            },
+            {
+                "bundle_id": "exec-004",
+                "status": "proposed",
+                "target_family": "portolan-integration",
+                "action": "update_existing_skill",
+                "target_skill_id": "portolan_integration_hermes_bootstrap",
+            },
+        ]
+        bundles = adapt_proposals(raws)
+        assert len(bundles) == 2
+        assert bundles[0].bundle_id == "game_migration_blocker"
+        assert bundles[1].bundle_id == "exec-004"
 
     def test_empty_list(self) -> None:
         """An empty list returns an empty list."""
