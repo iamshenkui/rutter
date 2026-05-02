@@ -1,0 +1,10 @@
+schema_version: "1"
+bundle_id: ""
+status: draft
+target_family: game-migration
+action: create_new_skill
+risk_level: low
+created_at: "2026-05-02T00:00:00Z"
+new_skill_id: some_new_skill
+supporting_issues: []
+evidence_refs: []

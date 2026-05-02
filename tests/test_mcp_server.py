@@ -21,11 +21,14 @@ def test_create_server_registers_expected_tools() -> None:
     tool_names = sorted(tool.name for tool in tools)
 
     assert tool_names == [
+        "get_proposal",
         "get_skill",
         "get_skill_dependencies",
         "get_skill_family",
+        "list_proposals",
         "list_skill_families",
         "search_skills",
+        "validate_proposals",
         "validate_registry",
     ]
 
@@ -36,12 +39,14 @@ def test_cli_serve_dispatches_to_run_server(monkeypatch: pytest.MonkeyPatch) -> 
     def fake_run_server(
         registry_root: str,
         *,
+        proposal_dir: str | None = None,
         transport: str,
         host: str,
         port: int,
         debug: bool,
     ) -> None:
         calls["registry_root"] = registry_root
+        calls["proposal_dir"] = proposal_dir
         calls["transport"] = transport
         calls["host"] = host
         calls["port"] = port
@@ -67,8 +72,53 @@ def test_cli_serve_dispatches_to_run_server(monkeypatch: pytest.MonkeyPatch) -> 
     assert exit_code == 0
     assert calls == {
         "registry_root": str(PROJECT_ROOT),
+        "proposal_dir": None,
         "transport": "stdio",
         "host": "0.0.0.0",
         "port": 9000,
         "debug": True,
+    }
+
+
+def test_cli_serve_forwards_custom_proposal_dir(monkeypatch: pytest.MonkeyPatch) -> None:
+    calls: dict[str, object] = {}
+
+    def fake_run_server(
+        registry_root: str,
+        *,
+        proposal_dir: str | None = None,
+        transport: str,
+        host: str,
+        port: int,
+        debug: bool,
+    ) -> None:
+        calls["registry_root"] = registry_root
+        calls["proposal_dir"] = proposal_dir
+        calls["transport"] = transport
+        calls["host"] = host
+        calls["port"] = port
+        calls["debug"] = debug
+
+    monkeypatch.setattr("rutter.cli.run_server", fake_run_server)
+
+    exit_code = main(
+        [
+            "serve",
+            "--path",
+            str(PROJECT_ROOT),
+            "--proposal-dir",
+            "/tmp/custom-proposals",
+            "--transport",
+            "stdio",
+        ]
+    )
+
+    assert exit_code == 0
+    assert calls == {
+        "registry_root": str(PROJECT_ROOT),
+        "proposal_dir": "/tmp/custom-proposals",
+        "transport": "stdio",
+        "host": "127.0.0.1",
+        "port": 8000,
+        "debug": False,
     }

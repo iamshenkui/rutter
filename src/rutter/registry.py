@@ -305,6 +305,14 @@ def _load_manifest(path: Path, errors: list[str]) -> SkillManifest | None:
     if not skill_refs:
         return None
 
+    assert family is not None
+    assert version is not None
+    assert name is not None
+    assert description is not None
+    assert tags is not None
+    assert keywords is not None
+    assert aliases is not None
+
     return SkillManifest(
         family=family,
         version=version,
@@ -334,6 +342,13 @@ def _load_atomic_skill(path: Path, errors: list[str]) -> AtomicSkill | None:
         for value in (skill_id, name, description, category, incremental_rules, dependencies)
     ):
         return None
+
+    assert skill_id is not None
+    assert name is not None
+    assert description is not None
+    assert category is not None
+    assert incremental_rules is not None
+    assert dependencies is not None
 
     return AtomicSkill(
         id=skill_id,

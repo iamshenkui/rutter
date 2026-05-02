@@ -1,0 +1,10 @@
+schema_version: "1"
+bundle_id: proposal-invalid-action-001
+status: draft
+target_family: game-migration
+action: delete_skill
+risk_level: low
+created_at: "2026-05-02T00:00:00Z"
+new_skill_id: new_skill
+supporting_issues: []
+evidence_refs: []

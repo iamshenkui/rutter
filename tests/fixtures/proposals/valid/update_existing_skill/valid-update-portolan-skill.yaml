@@ -1,0 +1,10 @@
+schema_version: "1"
+bundle_id: proposal-20260502-valid-update-002
+status: accepted
+target_family: portolan-integration
+action: update_existing_skill
+risk_level: low
+created_at: "2026-05-02T03:00:00Z"
+target_skill_id: portolan_integration_hermes_bootstrap
+supporting_issues: []
+evidence_refs: []

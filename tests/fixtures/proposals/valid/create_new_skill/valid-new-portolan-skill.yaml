@@ -1,0 +1,10 @@
+schema_version: "1"
+bundle_id: proposal-20260502-valid-new-002
+status: proposed
+target_family: portolan-integration
+action: create_new_skill
+risk_level: medium
+created_at: "2026-05-02T01:00:00Z"
+new_skill_id: portolan_integration_new_tool
+supporting_issues: []
+evidence_refs: []
