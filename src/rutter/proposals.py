@@ -497,6 +497,121 @@ def get_proposal(
     return None
 
 
+def promote_proposal(
+    proposal_dir: str | Path,
+    bundle_id: str,
+    registry_root: str | Path | None = None,
+) -> dict[str, Any]:
+    """Generate a human-reviewable promotion plan for an accepted proposal.
+
+    In v0.1 this does NOT write to the live registry. Instead, it outputs
+    structured instructions that a human can review and apply manually.
+
+    Args:
+        proposal_dir: Root directory for proposals.
+        bundle_id: The bundle_id of the proposal to promote.
+        registry_root: Required registry root for resolving target paths.
+
+    Returns:
+        A dict describing the promotion plan (proposal metadata + operations).
+
+    Raises:
+        ProposalValidationError: If the proposal is not found, not accepted,
+            or registry validation fails.
+    """
+    bundle = get_proposal(proposal_dir, bundle_id)
+    if bundle is None:
+        raise ProposalValidationError([f"Proposal not found: bundle_id='{bundle_id}'"])
+
+    if bundle.status != "accepted":
+        raise ProposalValidationError(
+            [f"Proposal '{bundle_id}' has status '{bundle.status}', expected 'accepted'"]
+        )
+
+    # Resolve the target family version from the live registry (read-only).
+    # v0.1 is lenient: if the registry cannot be loaded, we still generate
+    # a promotion plan with an unknown-version placeholder.
+    target_version: str | None = None
+    if registry_root is not None:
+        from .registry import load_registry, resolve_registry_root
+
+        registry_root = resolve_registry_root(registry_root)
+        try:
+            families = load_registry(registry_root)
+        except Exception:
+            families = []
+
+        for family in families:
+            if family.manifest.family == bundle.target_family:
+                candidates = [
+                    f for f in families if f.manifest.family == bundle.target_family
+                ]
+                target_version = sorted(
+                    candidates, key=lambda f: f.manifest.version
+                )[-1].manifest.version
+                break
+
+    if target_version is None:
+        target_version = "<unknown-version>"
+
+    operations: list[dict[str, Any]] = []
+    registry_path = f"registry/{bundle.target_family}/{target_version}"
+
+    if bundle.action == "create_new_skill":
+        new_skill_id = bundle.new_skill_id or "<new_skill_id>"
+        operations.append({
+            "type": "create_skill_yaml",
+            "path": f"{registry_path}/{new_skill_id}.yaml",
+            "description": (
+                f"Create a new atomic skill YAML file for '{new_skill_id}' "
+                f"with id, name, description, category, incremental_rules, "
+                f"and dependencies fields."
+            ),
+        })
+        operations.append({
+            "type": "update_manifest",
+            "path": f"{registry_path}/manifest.yaml",
+            "description": (
+                f"Add a manifest entry for '{new_skill_id}' referencing "
+                f"'{new_skill_id}.yaml' so the registry indexes the new skill."
+            ),
+        })
+    elif bundle.action == "update_existing_skill":
+        target_skill_id = bundle.target_skill_id or "<target_skill_id>"
+        operations.append({
+            "type": "update_skill_yaml",
+            "path": f"{registry_path}/{target_skill_id}.yaml",
+            "description": (
+                f"Update the existing skill YAML for '{target_skill_id}' "
+                f"with the proposed changes."
+            ),
+        })
+
+    plan: dict[str, Any] = {
+        "promotion_plan": {
+            "proposal": {
+                "bundle_id": bundle.bundle_id,
+                "status": bundle.status,
+                "action": bundle.action,
+                "target_family": bundle.target_family,
+                "target_version": target_version,
+                "risk_level": bundle.risk_level,
+                "evidence_refs": list(bundle.evidence_refs),
+                "supporting_issues": list(bundle.supporting_issues),
+            },
+            "registry_operations": operations,
+            "v0.1_note": (
+                "This promotion plan is a human-reviewable output only. "
+                "No automatic changes have been made to the registry. "
+                "Review the operations above, apply them manually, and "
+                "commit through the normal workflow."
+            ),
+        },
+    }
+
+    return plan
+
+
 def review_proposal(
     proposal_dir: str | Path,
     bundle_id: str,

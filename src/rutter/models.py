@@ -42,7 +42,7 @@ class SkillFamily:
 # ── SkillProposalBundle@v1 ──────────────────────────────────────────────
 
 VALID_PROPOSAL_SCHEMA_VERSIONS = {"v1"}
-VALID_PROPOSAL_STATUSES = {"draft", "review", "approved", "rejected"}
+VALID_PROPOSAL_STATUSES = {"draft", "review", "approved", "rejected", "accepted"}
 VALID_PROPOSAL_ACTIONS = {"create_new_skill", "update_existing_skill"}
 VALID_RISK_LEVELS = {"low", "medium", "high"}
 

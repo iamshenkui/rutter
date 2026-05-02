@@ -13,6 +13,7 @@ from .proposals import (
     dump_proposal_validation_result,
     get_proposal,
     list_proposals,
+    promote_proposal,
     review_proposal,
     submit_proposal,
     validate_proposals,
@@ -213,6 +214,21 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Updated: {result_path}")
         return 0
 
+    if args.command == "promote-proposal":
+        proposal_dir = args.proposal_dir or str(Path(args.path) / "proposals")
+        try:
+            plan = promote_proposal(
+                proposal_dir,
+                args.bundle_id,
+                registry_root=args.path,
+            )
+        except ProposalValidationError as exc:
+            for error in exc.errors:
+                print(error, file=sys.stderr)
+            return 1
+        print(yaml.safe_dump(plan, sort_keys=False, allow_unicode=True), end="")
+        return 0
+
     if args.command == "serve":
         try:
             run_server(
@@ -394,6 +410,18 @@ def _build_parser() -> argparse.ArgumentParser:
         "--status", required=True, choices=sorted(VALID_PROPOSAL_STATUSES),
         help="New status value"
     )
+
+    promote_proposal_parser = subparsers.add_parser(
+        "promote-proposal", help="Generate a human-reviewable promotion plan for an accepted proposal"
+    )
+    promote_proposal_parser.add_argument(
+        "--path", default=".", help="Repository root or registry directory"
+    )
+    promote_proposal_parser.add_argument(
+        "--proposal-dir", default=None,
+        help="Proposal directory (default: --path/proposals)"
+    )
+    promote_proposal_parser.add_argument("bundle_id", help="Bundle identifier of the accepted proposal")
 
     serve_parser = subparsers.add_parser(
         "serve", help="Start the read-only MCP server over the registry"
