@@ -251,7 +251,7 @@ def test_unknown_target_family() -> None:
 
 def test_validate_proposals_valid_directory() -> None:
     results = validate_proposals(FIXTURES_ROOT / "valid", registry_root=REGISTRY_ROOT)
-    assert len(results) == 4
+    assert len(results) == 6
     for path, errors in results.items():
         assert errors == [], f"Expected {path} to have no errors, got: {errors}"
 
@@ -348,7 +348,7 @@ def test_load_proposals_flat_dir() -> None:
 
 def test_load_proposals_nested_dir() -> None:
     bundles = load_proposals(FIXTURES_ROOT / "valid")
-    assert len(bundles) == 4
+    assert len(bundles) == 6
     families = {b.target_family for b in bundles}
     assert "game-migration" in families
     assert "portolan-integration" in families

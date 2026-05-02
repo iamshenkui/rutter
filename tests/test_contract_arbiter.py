@@ -19,12 +19,30 @@ from pathlib import Path
 import pytest
 import yaml
 
-from rutter.models import SkillProposalBundle
+from rutter.models import EvidenceRef, SkillProposalBundle
 from rutter.proposals import validate_proposal
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 REGISTRY_ROOT = PROJECT_ROOT / "registry"
 FIXTURES_ROOT = PROJECT_ROOT / "tests" / "fixtures" / "proposals"
+
+
+def _load_evidence_refs(raw: dict, field: str) -> tuple[EvidenceRef, ...]:
+    """Load evidence refs from raw YAML data, handling both string and dict formats."""
+    raw_refs = raw.get(field, []) or []
+    if not isinstance(raw_refs, list):
+        return ()
+    result: list[EvidenceRef] = []
+    for item in raw_refs:
+        if isinstance(item, str):
+            result.append(EvidenceRef(path=item.strip()))
+        elif isinstance(item, dict):
+            ref_type = item.get("type", "")
+            ref_path = item.get("path", "")
+            ref_desc = item.get("description", "")
+            if isinstance(ref_type, str) and isinstance(ref_path, str) and isinstance(ref_desc, str):
+                result.append(EvidenceRef(type=ref_type, path=ref_path, description=ref_desc))
+    return tuple(result)
 
 
 def _load_yaml_as_bundle(path: Path) -> SkillProposalBundle | None:
@@ -44,7 +62,7 @@ def _load_yaml_as_bundle(path: Path) -> SkillProposalBundle | None:
         target_family=raw.get("target_family", ""),
         action=raw.get("action", ""),
         supporting_issues=tuple(raw.get("supporting_issues", []) or []),
-        evidence_refs=tuple(raw.get("evidence_refs", []) or []),
+        evidence_refs=_load_evidence_refs(raw, "evidence_refs"),
         risk_level=raw.get("risk_level", "medium"),
         created_at=raw.get("created_at", ""),
         target_skill_id=raw.get("target_skill_id"),
@@ -130,6 +148,18 @@ FIXTURE_CONTRACTS: list[tuple[str, bool, list[str]]] = [
         False,
         ["target_skill_id"],
     ),
+    # Valid: accepted proposal ready for promotion (split_existing_skill)
+    (
+        "valid/promote/valid-accepted-proposal.yaml",
+        True,
+        [],
+    ),
+    # Valid: promoted proposal (post-promotion lifecycle state)
+    (
+        "valid/promote/valid-promoted-proposal.yaml",
+        True,
+        [],
+    ),
 ]
 
 
@@ -182,7 +212,7 @@ class TestArbiterFixtureContracts:
         """All valid fixture YAML files must be parseable as SkillProposalBundle."""
         valid_root = FIXTURES_ROOT / "valid"
         yaml_files = sorted(valid_root.rglob("*.yaml"))
-        assert len(yaml_files) == 4, f"Expected 4 valid fixtures, found {len(yaml_files)}"
+        assert len(yaml_files) == 6, f"Expected 6 valid fixtures, found {len(yaml_files)}"
 
         for yf in yaml_files:
             bundle = _load_yaml_as_bundle(yf)
@@ -285,5 +315,96 @@ class TestArbiterFixtureContracts:
         """
         valid_count = len(list((FIXTURES_ROOT / "valid").rglob("*.yaml")))
         invalid_count = len(list((FIXTURES_ROOT / "invalid").glob("*.yaml")))
-        assert valid_count == 4, f"Expected 4 valid fixtures, found {valid_count}"
+        assert valid_count == 6, f"Expected 6 valid fixtures, found {valid_count}"
         assert invalid_count == 8, f"Expected 8 invalid fixtures, found {invalid_count}"
+
+    # ── Promotion contract ──────────────────────────────────────────────
+
+    def test_accepted_proposal_is_valid_for_promotion(self) -> None:
+        """An accepted proposal must pass schema validation — promotion requires
+        a valid SkillProposalBundle@v1 with status 'accepted'."""
+        fixture = FIXTURES_ROOT / "valid" / "promote" / "valid-accepted-proposal.yaml"
+        assert fixture.exists()
+
+        bundle = _load_yaml_as_bundle(fixture)
+        assert bundle is not None
+        assert bundle.status == "accepted"
+        errors = validate_proposal(bundle, source=fixture, registry_root=REGISTRY_ROOT)
+        assert errors == [], (
+            f"Accepted proposal fixture has validation errors: {errors}"
+        )
+
+    def test_promoted_proposal_is_valid_status(self) -> None:
+        """A promoted proposal must be a valid SkillProposalBundle@v1 — 'promoted'
+        is a legal lifecycle status that should pass schema validation."""
+        fixture = FIXTURES_ROOT / "valid" / "promote" / "valid-promoted-proposal.yaml"
+        assert fixture.exists()
+
+        bundle = _load_yaml_as_bundle(fixture)
+        assert bundle is not None
+        assert bundle.status == "promoted"
+        errors = validate_proposal(bundle, source=fixture, registry_root=REGISTRY_ROOT)
+        assert errors == [], (
+            f"Promoted proposal fixture has validation errors: {errors}"
+        )
+
+    # ── EvidenceRef shape contract ──────────────────────────────────────
+
+    def test_evidence_ref_dict_shape_is_meta_agent_compatible(self) -> None:
+        """EvidenceRef entries with type/path/description dict format must
+        be loadable and preserve all fields — this is the meta-agent output
+        contract."""
+        refs = _load_evidence_refs({
+            "evidence_refs": [
+                {"type": "analysis", "path": "docs/analysis.md", "description": "Test analysis"},
+                {"type": "review", "path": "docs/review.md", "description": "Test review"},
+            ]
+        }, "evidence_refs")
+
+        assert len(refs) == 2
+        assert refs[0].type == "analysis"
+        assert refs[0].path == "docs/analysis.md"
+        assert refs[0].description == "Test analysis"
+        assert refs[1].type == "review"
+        assert refs[1].path == "docs/review.md"
+        assert refs[1].description == "Test review"
+
+    def test_evidence_ref_string_shape_is_compatible(self) -> None:
+        """EvidenceRef entries as plain strings (path shorthand) must be
+        loadable — this covers the minimal format."""
+        refs = _load_evidence_refs({
+            "evidence_refs": [
+                "skills/game-migration/simple.md",
+                "skills/portolan-integration/evidence.md",
+            ]
+        }, "evidence_refs")
+
+        assert len(refs) == 2
+        assert refs[0].type == ""
+        assert refs[0].path == "skills/game-migration/simple.md"
+        assert refs[1].type == ""
+        assert refs[1].path == "skills/portolan-integration/evidence.md"
+
+    # ── Status transition contract ──────────────────────────────────────
+
+    def test_promotion_status_transition_contract(self) -> None:
+        """The accepted → promoted status transition must be valid under
+        the SkillProposalBundle@v1 schema. Both status values are in the
+        allowed set and proposals with these statuses pass validation."""
+        from rutter.models import SkillProposalBundle
+
+        for status in ("accepted", "promoted"):
+            bundle = SkillProposalBundle(
+                schema_version="1",
+                bundle_id=f"contract-{status}",
+                status=status,
+                target_family="game-migration",
+                action="create_new_skill",
+                new_skill_id="contract_test_skill",
+                risk_level="low",
+                created_at="2026-05-02T00:00:00Z",
+            )
+            errors = validate_proposal(bundle)
+            assert errors == [], (
+                f"Status '{status}' should be valid, got errors: {errors}"
+            )

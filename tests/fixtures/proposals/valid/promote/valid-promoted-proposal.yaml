@@ -1,0 +1,14 @@
+schema_version: "1"
+bundle_id: proposal-20260502-valid-promoted-001
+status: promoted
+target_family: portolan-integration
+action: deprecate_skill
+risk_level: high
+created_at: "2026-05-02T06:00:00Z"
+target_skill_id: portolan_integration_system_map
+supporting_issues:
+  - "ISSUE-601"
+evidence_refs:
+  - type: review
+    path: reviews/deprecation-system-map.md
+    description: "Deprecation review for system map skill"
