@@ -880,6 +880,100 @@ def test_promote_proposal_resolves_registry_target_version(tmp_path: Path) -> No
     assert target == "v0.2"
 
 
+def test_promote_proposal_creates_plan_for_split_existing_skill(tmp_path: Path) -> None:
+    """Promotion plan for split_existing_skill generates split + manifest update ops."""
+    from rutter.models import SkillProposalBundle
+    from rutter.proposals import promote_proposal, submit_proposal
+
+    submit_proposal(SkillProposalBundle(
+        schema_version="1", bundle_id="promote-split", status="accepted",
+        target_family="game-migration", action="split_existing_skill",
+        target_skill_id="game_migration_plan", new_skill_id="game_migration_plan_core",
+        risk_level="high", created_at="2026-05-02T00:00:00Z",
+    ), tmp_path)
+
+    plan = promote_proposal(tmp_path, "promote-split")
+    item = plan["promotion_plan"]
+    assert item["proposal"]["bundle_id"] == "promote-split"
+    assert item["proposal"]["action"] == "split_existing_skill"
+    assert item["proposal"]["status"] == "promoted"
+
+    ops = item["registry_operations"]
+    assert len(ops) == 2
+    assert ops[0]["type"] == "split_skill"
+    assert "game_migration_plan" in ops[0]["path"]
+    assert ops[1]["type"] == "update_manifest"
+
+
+def test_promote_proposal_creates_plan_for_deprecate_skill(tmp_path: Path) -> None:
+    """Promotion plan for deprecate_skill generates deprecate + manifest update ops."""
+    from rutter.models import SkillProposalBundle
+    from rutter.proposals import promote_proposal, submit_proposal
+
+    submit_proposal(SkillProposalBundle(
+        schema_version="1", bundle_id="promote-deprecate", status="accepted",
+        target_family="portolan-integration", action="deprecate_skill",
+        target_skill_id="portolan_integration_system_map",
+        risk_level="high", created_at="2026-05-02T00:00:00Z",
+    ), tmp_path)
+
+    plan = promote_proposal(tmp_path, "promote-deprecate")
+    item = plan["promotion_plan"]
+    assert item["proposal"]["bundle_id"] == "promote-deprecate"
+    assert item["proposal"]["action"] == "deprecate_skill"
+
+    ops = item["registry_operations"]
+    assert len(ops) == 2
+    assert ops[0]["type"] == "deprecate_skill"
+    assert "portolan_integration_system_map" in ops[0]["path"]
+    assert ops[1]["type"] == "update_manifest"
+    assert "manifest.yaml" in ops[1]["path"]
+
+
+def test_promote_proposal_creates_plan_for_metadata_only(tmp_path: Path) -> None:
+    """Promotion plan for metadata_only generates a single update_metadata op."""
+    from rutter.models import SkillProposalBundle
+    from rutter.proposals import promote_proposal, submit_proposal
+
+    submit_proposal(SkillProposalBundle(
+        schema_version="1", bundle_id="promote-metadata", status="accepted",
+        target_family="game-migration", action="metadata_only",
+        risk_level="low", created_at="2026-05-02T00:00:00Z",
+    ), tmp_path)
+
+    plan = promote_proposal(tmp_path, "promote-metadata")
+    item = plan["promotion_plan"]
+    assert item["proposal"]["bundle_id"] == "promote-metadata"
+    assert item["proposal"]["action"] == "metadata_only"
+
+    ops = item["registry_operations"]
+    assert len(ops) == 1
+    assert ops[0]["type"] == "update_metadata"
+    assert "manifest.yaml" in ops[0]["path"]
+
+
+def test_promote_proposal_creates_plan_for_no_action(tmp_path: Path) -> None:
+    """Promotion plan for no_action generates a single noop op."""
+    from rutter.models import SkillProposalBundle
+    from rutter.proposals import promote_proposal, submit_proposal
+
+    submit_proposal(SkillProposalBundle(
+        schema_version="1", bundle_id="promote-noop", status="accepted",
+        target_family="game-migration", action="no_action",
+        risk_level="low", created_at="2026-05-02T00:00:00Z",
+    ), tmp_path)
+
+    plan = promote_proposal(tmp_path, "promote-noop")
+    item = plan["promotion_plan"]
+    assert item["proposal"]["bundle_id"] == "promote-noop"
+    assert item["proposal"]["action"] == "no_action"
+
+    ops = item["registry_operations"]
+    assert len(ops) == 1
+    assert ops[0]["type"] == "noop"
+    assert ops[0]["description"] != ""
+
+
 def test_cli_promote_proposal_accepted(capsys, tmp_path: Path) -> None:
     from rutter.cli import main
     from rutter.models import SkillProposalBundle
@@ -2091,6 +2185,102 @@ def test_cli_promote_proposal_create_shows_correct_registry_manifest_path_game_v
     captured = capsys.readouterr()
     # Should reference the correct path
     assert "game-migration/v0.2" in captured.out
+
+
+def test_cli_promote_proposal_split_existing_skill(tmp_path: Path, capsys) -> None:
+    """CLI promote-proposal for split_existing_skill generates split + manifest ops."""
+    from rutter.cli import main
+    from rutter.models import SkillProposalBundle
+    from rutter.proposals import submit_proposal
+
+    proposal_dir = tmp_path / "proposals"
+    submit_proposal(SkillProposalBundle(
+        schema_version="1", bundle_id="cli-promote-split", status="accepted",
+        target_family="game-migration", action="split_existing_skill",
+        target_skill_id="game_migration_plan", new_skill_id="game_migration_plan_core",
+        risk_level="high", created_at="2026-05-02T00:00:00Z",
+    ), proposal_dir)
+
+    exit_code = main([
+        "promote-proposal", "cli-promote-split",
+        "--path", str(tmp_path), "--proposal-dir", str(proposal_dir),
+    ])
+    assert exit_code == 0
+    captured = capsys.readouterr()
+    assert "split_skill" in captured.out
+    assert "game_migration_plan" in captured.out
+    assert "manifest.yaml" in captured.out
+
+
+def test_cli_promote_proposal_deprecate_skill(tmp_path: Path, capsys) -> None:
+    """CLI promote-proposal for deprecate_skill generates deprecate + manifest ops."""
+    from rutter.cli import main
+    from rutter.models import SkillProposalBundle
+    from rutter.proposals import submit_proposal
+
+    proposal_dir = tmp_path / "proposals"
+    submit_proposal(SkillProposalBundle(
+        schema_version="1", bundle_id="cli-promote-deprecate", status="accepted",
+        target_family="portolan-integration", action="deprecate_skill",
+        target_skill_id="portolan_integration_system_map",
+        risk_level="high", created_at="2026-05-02T00:00:00Z",
+    ), proposal_dir)
+
+    exit_code = main([
+        "promote-proposal", "cli-promote-deprecate",
+        "--path", str(tmp_path), "--proposal-dir", str(proposal_dir),
+    ])
+    assert exit_code == 0
+    captured = capsys.readouterr()
+    assert "deprecate_skill" in captured.out
+    assert "portolan_integration_system_map" in captured.out
+    assert "manifest.yaml" in captured.out
+
+
+def test_cli_promote_proposal_metadata_only(tmp_path: Path, capsys) -> None:
+    """CLI promote-proposal for metadata_only generates update_metadata op."""
+    from rutter.cli import main
+    from rutter.models import SkillProposalBundle
+    from rutter.proposals import submit_proposal
+
+    proposal_dir = tmp_path / "proposals"
+    submit_proposal(SkillProposalBundle(
+        schema_version="1", bundle_id="cli-promote-metadata", status="accepted",
+        target_family="game-migration", action="metadata_only",
+        risk_level="low", created_at="2026-05-02T00:00:00Z",
+    ), proposal_dir)
+
+    exit_code = main([
+        "promote-proposal", "cli-promote-metadata",
+        "--path", str(tmp_path), "--proposal-dir", str(proposal_dir),
+    ])
+    assert exit_code == 0
+    captured = capsys.readouterr()
+    assert "update_metadata" in captured.out
+    assert "manifest.yaml" in captured.out
+
+
+def test_cli_promote_proposal_no_action(tmp_path: Path, capsys) -> None:
+    """CLI promote-proposal for no_action generates a noop op."""
+    from rutter.cli import main
+    from rutter.models import SkillProposalBundle
+    from rutter.proposals import submit_proposal
+
+    proposal_dir = tmp_path / "proposals"
+    submit_proposal(SkillProposalBundle(
+        schema_version="1", bundle_id="cli-promote-noop", status="accepted",
+        target_family="game-migration", action="no_action",
+        risk_level="low", created_at="2026-05-02T00:00:00Z",
+    ), proposal_dir)
+
+    exit_code = main([
+        "promote-proposal", "cli-promote-noop",
+        "--path", str(tmp_path), "--proposal-dir", str(proposal_dir),
+    ])
+    assert exit_code == 0
+    captured = capsys.readouterr()
+    assert "noop" in captured.out
+    assert "No automatic changes" in captured.out
 
 
 def test_cli_review_proposal_updates_status(tmp_path: Path, capsys) -> None:
