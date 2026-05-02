@@ -276,6 +276,18 @@ def validate_proposal(
         except (ValueError, TypeError):
             errors.append(f"Invalid created_at '{proposal.created_at}'{loc}: must be ISO 8601")
 
+    # Action-specific required fields (enforced with or without registry)
+    if proposal.action in ("update_existing_skill", "split_existing_skill", "deprecate_skill"):
+        if not proposal.target_skill_id:
+            errors.append(
+                f"Action '{proposal.action}' requires 'target_skill_id'{loc}"
+            )
+    elif proposal.action == "create_new_skill":
+        if not proposal.new_skill_id:
+            errors.append(
+                f"Action 'create_new_skill' requires non-empty 'new_skill_id'{loc}"
+            )
+
     # Validate against registry when a registry root is given
     if registry_root is not None:
         existing_families = _get_all_registry_families(registry_root)
@@ -288,23 +300,15 @@ def validate_proposal(
                 f"not found in registry (known: {sorted(existing_families)})"
             )
 
-        # action-specific checks
+        # action-specific registry cross-reference checks
         if proposal.action in ("update_existing_skill", "split_existing_skill", "deprecate_skill"):
-            if not proposal.target_skill_id:
-                errors.append(
-                    f"Action '{proposal.action}' requires 'target_skill_id'{loc}"
-                )
-            elif proposal.target_skill_id not in existing_skill_ids:
+            if proposal.target_skill_id and proposal.target_skill_id not in existing_skill_ids:
                 errors.append(
                     f"target_skill_id '{proposal.target_skill_id}'{loc} "
                     f"not found in registry"
                 )
         elif proposal.action == "create_new_skill":
-            if not proposal.new_skill_id:
-                errors.append(
-                    f"Action 'create_new_skill' requires non-empty 'new_skill_id'{loc}"
-                )
-            elif proposal.new_skill_id in existing_skill_ids:
+            if proposal.new_skill_id and proposal.new_skill_id in existing_skill_ids:
                 errors.append(
                     f"new_skill_id '{proposal.new_skill_id}'{loc} "
                     f"collides with existing registry skill"

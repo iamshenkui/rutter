@@ -246,6 +246,81 @@ def test_unknown_target_family() -> None:
     assert any("nonexistent" in e for e in errors)
 
 
+# ── validate_proposal action-specific required fields without registry ──
+
+
+def test_create_new_skill_requires_new_skill_id_without_registry() -> None:
+    """create_new_skill must have new_skill_id even without a registry."""
+    from rutter.models import SkillProposalBundle
+
+    bundle = SkillProposalBundle(
+        schema_version="1",
+        bundle_id="proposal-no-reg-new",
+        status="proposed",
+        target_family="game-migration",
+        action="create_new_skill",
+        new_skill_id=None,
+        risk_level="low",
+        created_at="2026-05-02T00:00:00Z",
+    )
+    errors = validate_proposal(bundle)
+    assert any("new_skill_id" in e for e in errors)
+
+
+def test_update_existing_skill_requires_target_skill_id_without_registry() -> None:
+    """update_existing_skill must have target_skill_id even without a registry."""
+    from rutter.models import SkillProposalBundle
+
+    bundle = SkillProposalBundle(
+        schema_version="1",
+        bundle_id="proposal-no-reg-update",
+        status="proposed",
+        target_family="game-migration",
+        action="update_existing_skill",
+        target_skill_id=None,
+        risk_level="medium",
+        created_at="2026-05-02T00:00:00Z",
+    )
+    errors = validate_proposal(bundle)
+    assert any("target_skill_id" in e for e in errors)
+
+
+def test_split_existing_skill_requires_target_skill_id_without_registry() -> None:
+    """split_existing_skill must have target_skill_id even without a registry."""
+    from rutter.models import SkillProposalBundle
+
+    bundle = SkillProposalBundle(
+        schema_version="1",
+        bundle_id="proposal-no-reg-split",
+        status="proposed",
+        target_family="game-migration",
+        action="split_existing_skill",
+        target_skill_id=None,
+        risk_level="high",
+        created_at="2026-05-02T00:00:00Z",
+    )
+    errors = validate_proposal(bundle)
+    assert any("target_skill_id" in e for e in errors)
+
+
+def test_deprecate_skill_requires_target_skill_id_without_registry() -> None:
+    """deprecate_skill must have target_skill_id even without a registry."""
+    from rutter.models import SkillProposalBundle
+
+    bundle = SkillProposalBundle(
+        schema_version="1",
+        bundle_id="proposal-no-reg-deprecate",
+        status="proposed",
+        target_family="portolan-integration",
+        action="deprecate_skill",
+        target_skill_id=None,
+        risk_level="high",
+        created_at="2026-05-02T00:00:00Z",
+    )
+    errors = validate_proposal(bundle)
+    assert any("target_skill_id" in e for e in errors)
+
+
 # ── validate_proposals (scan directories) ───────────────────────────────
 
 
