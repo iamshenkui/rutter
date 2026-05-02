@@ -21,11 +21,14 @@ def test_create_server_registers_expected_tools() -> None:
     tool_names = sorted(tool.name for tool in tools)
 
     assert tool_names == [
+        "get_proposal",
         "get_skill",
         "get_skill_dependencies",
         "get_skill_family",
+        "list_proposals",
         "list_skill_families",
         "search_skills",
+        "validate_proposals",
         "validate_registry",
     ]
 

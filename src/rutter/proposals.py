@@ -167,6 +167,12 @@ def _load_single_proposal(
     if any(v is None for v in (schema_version, bundle_id, status, target_family, action)):
         return None
 
+    assert schema_version is not None
+    assert bundle_id is not None
+    assert status is not None
+    assert target_family is not None
+    assert action is not None
+
     return SkillProposalBundle(
         schema_version=schema_version,
         bundle_id=bundle_id,
@@ -330,3 +336,213 @@ def dump_proposal_validation_result(
         "invalid": invalid_count,
         "details": details,
     }
+
+
+# ── Proposal CRUD (Review Surface) ──────────────────────────────────────
+
+
+def _proposal_to_dict(proposal: SkillProposalBundle) -> dict[str, Any]:
+    """Serialize a SkillProposalBundle to a YAML-serializable dict, omitting None fields."""
+    data: dict[str, Any] = {
+        "schema_version": proposal.schema_version,
+        "bundle_id": proposal.bundle_id,
+        "status": proposal.status,
+        "target_family": proposal.target_family,
+        "action": proposal.action,
+        "risk_level": proposal.risk_level,
+        "supporting_issues": list(proposal.supporting_issues),
+        "evidence_refs": list(proposal.evidence_refs),
+    }
+    if proposal.created_at:
+        data["created_at"] = proposal.created_at
+    if proposal.target_skill_id is not None:
+        data["target_skill_id"] = proposal.target_skill_id
+    if proposal.new_skill_id is not None:
+        data["new_skill_id"] = proposal.new_skill_id
+    return data
+
+
+def submit_proposal(
+    proposal: SkillProposalBundle,
+    proposal_dir: str | Path,
+    registry_root: str | Path | None = None,
+    *,
+    allow_overwrite: bool = False,
+) -> Path:
+    """Validate and write a proposal YAML file into the review surface.
+
+    Args:
+        proposal: The proposal bundle to submit.
+        proposal_dir: Root directory for proposals.
+        registry_root: Optional registry root for cross-reference validation.
+        allow_overwrite: Allow overwriting an existing proposal file.
+
+    Returns:
+        Path to the written proposal file.
+
+    Raises:
+        ProposalValidationError: If validation fails.
+        FileExistsError: If the proposal file already exists and allow_overwrite is False.
+    """
+    errors = validate_proposal(proposal, registry_root=registry_root)
+    if errors:
+        raise ProposalValidationError(errors)
+
+    root = Path(proposal_dir).resolve()
+    family_dir = root / proposal.target_family
+    family_dir.mkdir(parents=True, exist_ok=True)
+
+    proposal_path = family_dir / f"{proposal.bundle_id}.yaml"
+    if proposal_path.exists() and not allow_overwrite:
+        raise FileExistsError(
+            f"Proposal already exists at {proposal_path}. Use --allow-overwrite to replace."
+        )
+
+    data = _proposal_to_dict(proposal)
+    proposal_path.write_text(yaml.safe_dump(data, sort_keys=False, allow_unicode=True), encoding="utf-8")
+    return proposal_path
+
+
+def list_proposals(
+    proposal_dir: str | Path,
+    *,
+    status_filter: str | None = None,
+    family_filter: str | None = None,
+) -> list[dict[str, Any]]:
+    """List all proposals in the review surface as metadata dicts.
+
+    Supports optional filtering by status and/or target_family.
+    """
+    try:
+        bundles = load_proposals(proposal_dir)
+    except ProposalValidationError:
+        # Return what we can — partial results from individual files
+        return _list_proposals_fallback(proposal_dir, status_filter, family_filter)
+
+    results: list[dict[str, Any]] = []
+    for bundle in bundles:
+        if status_filter and bundle.status != status_filter:
+            continue
+        if family_filter and bundle.target_family != family_filter:
+            continue
+        results.append({
+            "bundle_id": bundle.bundle_id,
+            "status": bundle.status,
+            "action": bundle.action,
+            "target_family": bundle.target_family,
+            "risk_level": bundle.risk_level,
+            "target_skill_id": bundle.target_skill_id,
+            "new_skill_id": bundle.new_skill_id,
+            "created_at": bundle.created_at,
+        })
+
+    results.sort(key=lambda r: (r["target_family"], r["bundle_id"]))
+    return results
+
+
+def _list_proposals_fallback(
+    proposal_dir: str | Path,
+    status_filter: str | None,
+    family_filter: str | None,
+) -> list[dict[str, Any]]:
+    """Fallback listing when load_proposals raises — read raw YAML per file."""
+    root = Path(proposal_dir).resolve()
+    if not root.is_dir():
+        return []
+
+    results: list[dict[str, Any]] = []
+    for yaml_file in sorted(root.rglob("*.yaml")):
+        try:
+            raw = yaml.safe_load(yaml_file.read_text(encoding="utf-8"))
+            if not isinstance(raw, dict):
+                continue
+            bundle_id = raw.get("bundle_id", yaml_file.stem)
+            status = raw.get("status", "unknown")
+            target_family = raw.get("target_family", "unknown")
+            if status_filter and status != status_filter:
+                continue
+            if family_filter and target_family != family_filter:
+                continue
+            results.append({
+                "bundle_id": bundle_id,
+                "status": status,
+                "action": raw.get("action", "unknown"),
+                "target_family": target_family,
+                "risk_level": raw.get("risk_level", "medium"),
+                "target_skill_id": raw.get("target_skill_id"),
+                "new_skill_id": raw.get("new_skill_id"),
+                "created_at": raw.get("created_at", ""),
+            })
+        except yaml.YAMLError:
+            continue
+
+    results.sort(key=lambda r: (r["target_family"], r["bundle_id"]))
+    return results
+
+
+def get_proposal(
+    proposal_dir: str | Path,
+    bundle_id: str,
+) -> SkillProposalBundle | None:
+    """Find a proposal by bundle_id across all family subdirectories."""
+    root = Path(proposal_dir).resolve()
+    if not root.is_dir():
+        return None
+
+    for yaml_file in sorted(root.rglob("*.yaml")):
+        errors: list[str] = []
+        bundle = _load_single_proposal(yaml_file, errors)
+        if bundle is not None and bundle.bundle_id == bundle_id:
+            return bundle
+    return None
+
+
+def review_proposal(
+    proposal_dir: str | Path,
+    bundle_id: str,
+    new_status: str,
+) -> Path:
+    """Update the status of an existing proposal.
+
+    Args:
+        proposal_dir: Root directory for proposals.
+        bundle_id: The bundle_id of the proposal to update.
+        new_status: The new status value (must be in VALID_PROPOSAL_STATUSES).
+
+    Returns:
+        Path to the updated proposal file.
+
+    Raises:
+        ProposalValidationError: If the new status is invalid or the proposal is not found.
+    """
+    if new_status not in VALID_PROPOSAL_STATUSES:
+        raise ProposalValidationError(
+            [f"Invalid status '{new_status}': must be one of {sorted(VALID_PROPOSAL_STATUSES)}"]
+        )
+
+    bundle = get_proposal(proposal_dir, bundle_id)
+    if bundle is None:
+        raise ProposalValidationError([f"Proposal not found: bundle_id='{bundle_id}'"])
+
+    # Find the existing file
+    root = Path(proposal_dir).resolve()
+    existing_path: Path | None = None
+    for yaml_file in root.rglob("*.yaml"):
+        errors: list[str] = []
+        candidate = _load_single_proposal(yaml_file, errors)
+        if candidate is not None and candidate.bundle_id == bundle_id:
+            existing_path = yaml_file
+            break
+
+    if existing_path is None:
+        raise ProposalValidationError([f"Proposal file not found for bundle_id='{bundle_id}'"])
+
+    # Read raw, update status, write back
+    raw = yaml.safe_load(existing_path.read_text(encoding="utf-8"))
+    if not isinstance(raw, dict):
+        raise ProposalValidationError([f"Cannot parse existing proposal file: {existing_path}"])
+    raw["status"] = new_status
+    existing_path.write_text(
+        yaml.safe_dump(raw, sort_keys=False, allow_unicode=True), encoding="utf-8"
+    )
+    return existing_path
