@@ -635,6 +635,73 @@ def test_cli_propose_creates_file(tmp_path: Path) -> None:
     assert bundles[0].bundle_id == "cli-propose-001"
 
 
+def test_cli_propose_with_evidence_refs(tmp_path: Path) -> None:
+    """CLI propose --evidence-refs normalizes strings to EvidenceRef objects."""
+    from rutter.cli import main
+    from rutter.models import EvidenceRef
+    from rutter.proposals import load_proposals
+
+    proposal_dir = tmp_path / "proposals"
+    exit_code = main([
+        "propose",
+        "--path", str(PROJECT_ROOT),
+        "--proposal-dir", str(proposal_dir),
+        "--bundle-id", "cli-evidence-001",
+        "--target-family", "game-migration",
+        "--action", "create_new_skill",
+        "--new-skill-id", "cli_evidence_test",
+        "--risk-level", "low",
+        "--status", "proposed",
+        "--created-at", "2026-05-02T00:00:00Z",
+        "--evidence-refs",
+        "docs/analysis.md",
+        "docs/review.md",
+    ])
+    assert exit_code == 0
+
+    bundles = load_proposals(proposal_dir)
+    assert len(bundles) == 1
+    bundle = bundles[0]
+    assert len(bundle.evidence_refs) == 2
+
+    for ref in bundle.evidence_refs:
+        assert isinstance(ref, EvidenceRef)
+
+    assert bundle.evidence_refs[0].path == "docs/analysis.md"
+    assert bundle.evidence_refs[1].path == "docs/review.md"
+
+    # Verify the EvidenceRef shape — path is always set, type and description are empty
+    assert bundle.evidence_refs[0].type == ""
+    assert bundle.evidence_refs[0].description == ""
+    assert bundle.evidence_refs[1].type == ""
+    assert bundle.evidence_refs[1].description == ""
+
+
+def test_cli_propose_with_empty_evidence_refs(tmp_path: Path) -> None:
+    """CLI propose without --evidence-refs produces empty evidence_refs tuple."""
+    from rutter.cli import main
+    from rutter.proposals import load_proposals
+
+    proposal_dir = tmp_path / "proposals"
+    exit_code = main([
+        "propose",
+        "--path", str(PROJECT_ROOT),
+        "--proposal-dir", str(proposal_dir),
+        "--bundle-id", "cli-no-evidence",
+        "--target-family", "game-migration",
+        "--action", "create_new_skill",
+        "--new-skill-id", "cli_no_evidence",
+        "--risk-level", "low",
+        "--status", "proposed",
+        "--created-at", "2026-05-02T00:00:00Z",
+    ])
+    assert exit_code == 0
+
+    bundles = load_proposals(proposal_dir)
+    assert len(bundles) == 1
+    assert bundles[0].evidence_refs == ()
+
+
 def test_cli_propose_validates_failure(tmp_path: Path) -> None:
     from rutter.cli import main
 

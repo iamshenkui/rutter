@@ -7,7 +7,7 @@ from pathlib import Path
 import yaml
 
 from .mcp_server import MCP_IMPORT_ERROR, run_server
-from .models import SkillProposalBundle, VALID_PROPOSAL_ACTIONS, VALID_RISK_LEVELS, VALID_PROPOSAL_STATUSES
+from .models import EvidenceRef, SkillProposalBundle, VALID_PROPOSAL_ACTIONS, VALID_RISK_LEVELS, VALID_PROPOSAL_STATUSES
 from .proposals import (
     ProposalValidationError,
     dump_proposal_validation_result,
@@ -148,7 +148,9 @@ def main(argv: list[str] | None = None) -> int:
             target_skill_id=args.target_skill_id,
             new_skill_id=args.new_skill_id,
             supporting_issues=tuple(args.supporting_issues or []),
-            evidence_refs=tuple(args.evidence_refs or []),
+            evidence_refs=tuple(
+                EvidenceRef(path=s) for s in (args.evidence_refs or [])
+            ),
         )
 
         try:
