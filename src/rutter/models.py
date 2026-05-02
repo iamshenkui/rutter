@@ -41,10 +41,24 @@ class SkillFamily:
 
 # ── SkillProposalBundle@v1 ──────────────────────────────────────────────
 
-VALID_PROPOSAL_SCHEMA_VERSIONS = {"v1"}
-VALID_PROPOSAL_STATUSES = {"draft", "review", "approved", "rejected", "accepted"}
-VALID_PROPOSAL_ACTIONS = {"create_new_skill", "update_existing_skill"}
+VALID_PROPOSAL_SCHEMA_VERSIONS = {"1"}
+VALID_PROPOSAL_STATUSES = {"proposed", "needs_revision", "accepted", "rejected", "promoted"}
+VALID_PROPOSAL_ACTIONS = {
+    "create_new_skill",
+    "update_existing_skill",
+    "split_existing_skill",
+    "deprecate_skill",
+    "metadata_only",
+    "no_action",
+}
 VALID_RISK_LEVELS = {"low", "medium", "high"}
+
+
+@dataclass(frozen=True)
+class EvidenceRef:
+    type: str = ""
+    path: str = ""
+    description: str = ""
 
 
 @dataclass(frozen=True)
@@ -55,7 +69,7 @@ class SkillProposalBundle:
     target_family: str
     action: str
     supporting_issues: tuple[str, ...] = ()
-    evidence_refs: tuple[str, ...] = ()
+    evidence_refs: tuple[EvidenceRef, ...] = ()
     risk_level: str = "medium"
     created_at: str = ""
     target_skill_id: str | None = None

@@ -1,6 +1,6 @@
-schema_version: v1
+schema_version: "1"
 bundle_id: proposal-20260502-valid-new-001
-status: draft
+status: proposed
 target_family: game-migration
 action: create_new_skill
 risk_level: low
@@ -9,4 +9,5 @@ new_skill_id: game_migration_asset_optimizer
 supporting_issues:
   - "ISSUE-101"
 evidence_refs:
-  - "skills/game-migration/asset-optimizer.md"
+  - path: skills/game-migration/asset-optimizer.md
+    description: "Asset optimizer skill definition"

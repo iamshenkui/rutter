@@ -116,7 +116,7 @@ FIXTURE_CONTRACTS: list[tuple[str, bool, list[str]]] = [
     (
         "invalid/invalid-schema-version.yaml",
         False,
-        ["schema_version", "v2"],
+        ["schema_version", "0"],
     ),
     # Invalid: bundle_id is empty string
     (
@@ -235,16 +235,17 @@ class TestArbiterFixtureContracts:
     # ── Schema contract consistency ─────────────────────────────────────
 
     def test_valid_fixtures_use_correct_schema_and_enum_values(self) -> None:
-        """All valid fixtures must use v1 schema and valid enum values."""
+        """All valid fixtures must use schema_version 1 and valid enum values."""
         valid_root = FIXTURES_ROOT / "valid"
         for yf in sorted(valid_root.rglob("*.yaml")):
             raw = yaml.safe_load(yf.read_text(encoding="utf-8"))
-            assert raw["schema_version"] == "v1", f"{yf.name}: schema_version must be v1"
+            assert raw["schema_version"] == "1", f"{yf.name}: schema_version must be 1"
             assert raw["status"] in {
-                "draft", "review", "approved", "rejected", "accepted"
+                "proposed", "needs_revision", "accepted", "rejected", "promoted"
             }, f"{yf.name}: invalid status"
             assert raw["action"] in {
-                "create_new_skill", "update_existing_skill"
+                "create_new_skill", "update_existing_skill", "split_existing_skill",
+                "deprecate_skill", "metadata_only", "no_action"
             }, f"{yf.name}: invalid action"
             assert raw.get("risk_level", "medium") in {
                 "low", "medium", "high"

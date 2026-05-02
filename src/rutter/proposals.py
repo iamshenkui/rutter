@@ -12,6 +12,7 @@ from .models import (
     VALID_PROPOSAL_SCHEMA_VERSIONS,
     VALID_PROPOSAL_STATUSES,
     VALID_RISK_LEVELS,
+    EvidenceRef,
     SkillProposalBundle,
 )
 from .registry import load_registry, resolve_registry_root
@@ -103,6 +104,36 @@ def _require_string_list(
     return result
 
 
+def _require_evidence_refs(
+    raw: dict[str, Any], field: str, path: Path, errors: list[str]
+) -> list[EvidenceRef] | None:
+    val = raw.get(field)
+    if val is None:
+        return []
+    if not isinstance(val, list):
+        errors.append(f"Field '{field}' must be a list in {path}")
+        return None
+    result: list[EvidenceRef] = []
+    for i, item in enumerate(val):
+        if isinstance(item, str):
+            result.append(EvidenceRef(path=item.strip()))
+        elif isinstance(item, dict):
+            ref_type = item.get("type", "")
+            ref_path = item.get("path", "")
+            ref_desc = item.get("description", "")
+            if isinstance(ref_type, str) and isinstance(ref_path, str) and isinstance(ref_desc, str):
+                result.append(EvidenceRef(type=ref_type, path=ref_path, description=ref_desc))
+            else:
+                errors.append(
+                    f"Field '{field}' contains an invalid evidence ref at index {i} in {path}"
+                )
+        else:
+            errors.append(
+                f"Field '{field}' contains an invalid evidence ref at index {i} in {path}"
+            )
+    return result
+
+
 def load_proposals(proposal_dir: str | Path) -> list[SkillProposalBundle]:
     """Load all proposals from a directory tree structured as proposals/<family>/<bundle_id>.yaml."""
     root = Path(proposal_dir).resolve()
@@ -162,7 +193,8 @@ def _load_single_proposal(
     new_skill_id = _opt_string(raw, "new_skill_id")
     risk_level = _opt_string(raw, "risk_level") or "medium"
     supporting_issues = _require_string_list(raw, "supporting_issues", path, errors) or []
-    evidence_refs = _require_string_list(raw, "evidence_refs", path, errors) or []
+    evidence_refs_raw = _require_evidence_refs(raw, "evidence_refs", path, errors)
+    evidence_refs: list[EvidenceRef] = evidence_refs_raw or []
 
     if any(v is None for v in (schema_version, bundle_id, status, target_family, action)):
         return None
@@ -257,10 +289,10 @@ def validate_proposal(
             )
 
         # action-specific checks
-        if proposal.action == "update_existing_skill":
+        if proposal.action in ("update_existing_skill", "split_existing_skill", "deprecate_skill"):
             if not proposal.target_skill_id:
                 errors.append(
-                    f"Action 'update_existing_skill' requires 'target_skill_id'{loc}"
+                    f"Action '{proposal.action}' requires 'target_skill_id'{loc}"
                 )
             elif proposal.target_skill_id not in existing_skill_ids:
                 errors.append(
@@ -341,6 +373,16 @@ def dump_proposal_validation_result(
 # ── Proposal CRUD (Review Surface) ──────────────────────────────────────
 
 
+def _evidence_ref_to_dict(ref: EvidenceRef) -> dict[str, str]:
+    d: dict[str, str] = {}
+    if ref.type:
+        d["type"] = ref.type
+    d["path"] = ref.path
+    if ref.description:
+        d["description"] = ref.description
+    return d
+
+
 def _proposal_to_dict(proposal: SkillProposalBundle) -> dict[str, Any]:
     """Serialize a SkillProposalBundle to a YAML-serializable dict, omitting None fields."""
     data: dict[str, Any] = {
@@ -351,7 +393,7 @@ def _proposal_to_dict(proposal: SkillProposalBundle) -> dict[str, Any]:
         "action": proposal.action,
         "risk_level": proposal.risk_level,
         "supporting_issues": list(proposal.supporting_issues),
-        "evidence_refs": list(proposal.evidence_refs),
+        "evidence_refs": [_evidence_ref_to_dict(e) for e in proposal.evidence_refs],
     }
     if proposal.created_at:
         data["created_at"] = proposal.created_at
@@ -586,6 +628,51 @@ def promote_proposal(
                 f"with the proposed changes."
             ),
         })
+    elif bundle.action == "split_existing_skill":
+        target_skill_id = bundle.target_skill_id or "<target_skill_id>"
+        operations.append({
+            "type": "split_skill",
+            "path": f"{registry_path}/{target_skill_id}.yaml",
+            "description": (
+                f"Split the existing skill '{target_skill_id}' into "
+                f"narrower skills and update the manifest accordingly."
+            ),
+        })
+        operations.append({
+            "type": "update_manifest",
+            "path": f"{registry_path}/manifest.yaml",
+            "description": f"Update manifest after splitting '{target_skill_id}'.",
+        })
+    elif bundle.action == "deprecate_skill":
+        target_skill_id = bundle.target_skill_id or "<target_skill_id>"
+        operations.append({
+            "type": "deprecate_skill",
+            "path": f"{registry_path}/{target_skill_id}.yaml",
+            "description": (
+                f"Mark skill '{target_skill_id}' as deprecated in its YAML "
+                f"and update the manifest."
+            ),
+        })
+        operations.append({
+            "type": "update_manifest",
+            "path": f"{registry_path}/manifest.yaml",
+            "description": f"Update manifest after deprecating '{target_skill_id}'.",
+        })
+    elif bundle.action == "metadata_only":
+        operations.append({
+            "type": "update_metadata",
+            "path": f"{registry_path}/manifest.yaml",
+            "description": (
+                f"Update registry metadata for family '{bundle.target_family}' "
+                f"without changing any skill definitions."
+            ),
+        })
+    elif bundle.action == "no_action":
+        operations.append({
+            "type": "noop",
+            "path": "",
+            "description": "No registry changes required. Proposal is informational only.",
+        })
 
     plan: dict[str, Any] = {
         "promotion_plan": {
@@ -596,7 +683,7 @@ def promote_proposal(
                 "target_family": bundle.target_family,
                 "target_version": target_version,
                 "risk_level": bundle.risk_level,
-                "evidence_refs": list(bundle.evidence_refs),
+                "evidence_refs": [_evidence_ref_to_dict(e) for e in bundle.evidence_refs],
                 "supporting_issues": list(bundle.supporting_issues),
             },
             "registry_operations": operations,

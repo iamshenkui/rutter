@@ -1,4 +1,4 @@
-schema_version: v1
+schema_version: "1"
 bundle_id: proposal-invalid-no-target-001
 status: draft
 target_family: game-migration

@@ -26,9 +26,9 @@ def test_valid_create_new_skill_passes_without_registry() -> None:
     from rutter.models import SkillProposalBundle
 
     bundle = SkillProposalBundle(
-        schema_version="v1",
+        schema_version="1",
         bundle_id="proposal-001",
-        status="draft",
+        status="proposed",
         target_family="game-migration",
         action="create_new_skill",
         new_skill_id="some_new_skill",
@@ -43,9 +43,9 @@ def test_valid_update_existing_skill_passes_without_registry() -> None:
     from rutter.models import SkillProposalBundle
 
     bundle = SkillProposalBundle(
-        schema_version="v1",
+        schema_version="1",
         bundle_id="proposal-002",
-        status="review",
+        status="needs_revision",
         target_family="game-migration",
         action="update_existing_skill",
         target_skill_id="game_migration_verify",
@@ -62,7 +62,7 @@ def test_invalid_schema_version() -> None:
     bundle = SkillProposalBundle(
         schema_version="v2",
         bundle_id="proposal-003",
-        status="draft",
+        status="proposed",
         target_family="game-migration",
         action="create_new_skill",
         new_skill_id="test",
@@ -77,9 +77,9 @@ def test_invalid_action() -> None:
     from rutter.models import SkillProposalBundle
 
     bundle = SkillProposalBundle(
-        schema_version="v1",
+        schema_version="1",
         bundle_id="proposal-004",
-        status="draft",
+        status="proposed",
         target_family="game-migration",
         action="delete_skill",
         risk_level="low",
@@ -93,7 +93,7 @@ def test_invalid_status() -> None:
     from rutter.models import SkillProposalBundle
 
     bundle = SkillProposalBundle(
-        schema_version="v1",
+        schema_version="1",
         bundle_id="proposal-005",
         status="cancelled",
         target_family="game-migration",
@@ -110,9 +110,9 @@ def test_invalid_risk_level() -> None:
     from rutter.models import SkillProposalBundle
 
     bundle = SkillProposalBundle(
-        schema_version="v1",
+        schema_version="1",
         bundle_id="proposal-006",
-        status="draft",
+        status="proposed",
         target_family="game-migration",
         action="create_new_skill",
         new_skill_id="test",
@@ -127,9 +127,9 @@ def test_invalid_created_at() -> None:
     from rutter.models import SkillProposalBundle
 
     bundle = SkillProposalBundle(
-        schema_version="v1",
+        schema_version="1",
         bundle_id="proposal-007",
-        status="draft",
+        status="proposed",
         target_family="game-migration",
         action="create_new_skill",
         new_skill_id="test",
@@ -144,9 +144,9 @@ def test_empty_bundle_id() -> None:
     from rutter.models import SkillProposalBundle
 
     bundle = SkillProposalBundle(
-        schema_version="v1",
+        schema_version="1",
         bundle_id="",
-        status="draft",
+        status="proposed",
         target_family="game-migration",
         action="create_new_skill",
         new_skill_id="test",
@@ -164,9 +164,9 @@ def test_update_existing_skill_requires_target_skill_id() -> None:
     from rutter.models import SkillProposalBundle
 
     bundle = SkillProposalBundle(
-        schema_version="v1",
+        schema_version="1",
         bundle_id="proposal-008",
-        status="draft",
+        status="proposed",
         target_family="game-migration",
         action="update_existing_skill",
         target_skill_id=None,
@@ -181,9 +181,9 @@ def test_update_existing_skill_requires_existing_skill_id() -> None:
     from rutter.models import SkillProposalBundle
 
     bundle = SkillProposalBundle(
-        schema_version="v1",
+        schema_version="1",
         bundle_id="proposal-009",
-        status="draft",
+        status="proposed",
         target_family="game-migration",
         action="update_existing_skill",
         target_skill_id="nonexistent_skill",
@@ -198,9 +198,9 @@ def test_create_new_skill_requires_non_empty_new_skill_id() -> None:
     from rutter.models import SkillProposalBundle
 
     bundle = SkillProposalBundle(
-        schema_version="v1",
+        schema_version="1",
         bundle_id="proposal-010",
-        status="draft",
+        status="proposed",
         target_family="game-migration",
         action="create_new_skill",
         new_skill_id=None,
@@ -215,9 +215,9 @@ def test_create_new_skill_collides_with_existing_skill() -> None:
     from rutter.models import SkillProposalBundle
 
     bundle = SkillProposalBundle(
-        schema_version="v1",
+        schema_version="1",
         bundle_id="proposal-011",
-        status="draft",
+        status="proposed",
         target_family="game-migration",
         action="create_new_skill",
         new_skill_id="game_migration_verify",
@@ -232,9 +232,9 @@ def test_unknown_target_family() -> None:
     from rutter.models import SkillProposalBundle
 
     bundle = SkillProposalBundle(
-        schema_version="v1",
+        schema_version="1",
         bundle_id="proposal-012",
-        status="draft",
+        status="proposed",
         target_family="nonexistent",
         action="create_new_skill",
         new_skill_id="some_new_skill",
@@ -372,9 +372,9 @@ def test_submit_proposal_creates_yaml(tmp_path: Path) -> None:
     from rutter.proposals import submit_proposal
 
     proposal = SkillProposalBundle(
-        schema_version="v1",
+        schema_version="1",
         bundle_id="test-submit-001",
-        status="draft",
+        status="proposed",
         target_family="game-migration",
         action="create_new_skill",
         new_skill_id="some_new_skill",
@@ -390,7 +390,7 @@ def test_submit_proposal_creates_yaml(tmp_path: Path) -> None:
     import yaml
     raw = yaml.safe_load(result_path.read_text(encoding="utf-8"))
     assert raw["bundle_id"] == "test-submit-001"
-    assert raw["status"] == "draft"
+    assert raw["status"] == "proposed"
     assert raw["target_family"] == "game-migration"
 
 
@@ -401,7 +401,7 @@ def test_submit_proposal_validates_before_write(tmp_path: Path) -> None:
     proposal = SkillProposalBundle(
         schema_version="v2",
         bundle_id="bad-version",
-        status="draft",
+        status="proposed",
         target_family="game-migration",
         action="create_new_skill",
         new_skill_id="test",
@@ -418,9 +418,9 @@ def test_submit_proposal_rejects_duplicate(tmp_path: Path) -> None:
     from rutter.proposals import submit_proposal
 
     proposal = SkillProposalBundle(
-        schema_version="v1",
+        schema_version="1",
         bundle_id="dup-test",
-        status="draft",
+        status="proposed",
         target_family="game-migration",
         action="create_new_skill",
         new_skill_id="test",
@@ -438,9 +438,9 @@ def test_submit_proposal_allow_overwrite(tmp_path: Path) -> None:
     from rutter.proposals import submit_proposal
 
     proposal = SkillProposalBundle(
-        schema_version="v1",
+        schema_version="1",
         bundle_id="overwrite-test",
-        status="draft",
+        status="proposed",
         target_family="game-migration",
         action="create_new_skill",
         new_skill_id="test",
@@ -468,13 +468,13 @@ def test_list_proposals_with_proposals(tmp_path: Path) -> None:
     from rutter.proposals import list_proposals, submit_proposal
 
     p1 = SkillProposalBundle(
-        schema_version="v1", bundle_id="list-001", status="draft",
+        schema_version="1", bundle_id="list-001", status="proposed",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="skill_a", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
     )
     p2 = SkillProposalBundle(
-        schema_version="v1", bundle_id="list-002", status="review",
+        schema_version="1", bundle_id="list-002", status="needs_revision",
         target_family="portolan-integration", action="update_existing_skill",
         target_skill_id="some_skill", risk_level="medium",
         created_at="2026-05-02T00:00:00Z",
@@ -494,7 +494,7 @@ def test_list_proposals_status_filter(tmp_path: Path) -> None:
 
     for i in range(3):
         submit_proposal(SkillProposalBundle(
-            schema_version="v1", bundle_id=f"filter-{i:03d}", status="draft",
+            schema_version="1", bundle_id=f"filter-{i:03d}", status="proposed",
             target_family="game-migration", action="create_new_skill",
             new_skill_id=f"skill_{i}", risk_level="low",
             created_at="2026-05-02T00:00:00Z",
@@ -502,16 +502,16 @@ def test_list_proposals_status_filter(tmp_path: Path) -> None:
 
     # One in review
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="filter-review", status="review",
+        schema_version="1", bundle_id="filter-review", status="needs_revision",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="skill_review", risk_level="medium",
         created_at="2026-05-02T00:00:00Z",
     ), tmp_path)
 
-    drafts = list_proposals(tmp_path, status_filter="draft")
+    drafts = list_proposals(tmp_path, status_filter="proposed")
     assert len(drafts) == 3
 
-    reviews = list_proposals(tmp_path, status_filter="review")
+    reviews = list_proposals(tmp_path, status_filter="needs_revision")
     assert len(reviews) == 1
 
 
@@ -520,13 +520,13 @@ def test_list_proposals_family_filter(tmp_path: Path) -> None:
     from rutter.proposals import list_proposals, submit_proposal
 
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="fam-game", status="draft",
+        schema_version="1", bundle_id="fam-game", status="proposed",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="s1", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
     ), tmp_path)
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="fam-portolan", status="draft",
+        schema_version="1", bundle_id="fam-portolan", status="proposed",
         target_family="portolan-integration", action="create_new_skill",
         new_skill_id="s2", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -545,7 +545,7 @@ def test_get_proposal_found(tmp_path: Path) -> None:
     from rutter.proposals import get_proposal, submit_proposal
 
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="get-test", status="draft",
+        schema_version="1", bundle_id="get-test", status="proposed",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="test_skill", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -572,16 +572,16 @@ def test_review_proposal_updates_status(tmp_path: Path) -> None:
     from rutter.proposals import get_proposal, review_proposal, submit_proposal
 
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="review-me", status="draft",
+        schema_version="1", bundle_id="review-me", status="proposed",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="test", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
     ), tmp_path)
 
-    review_proposal(tmp_path, "review-me", "review")
+    review_proposal(tmp_path, "review-me", "needs_revision")
     bundle = get_proposal(tmp_path, "review-me")
     assert bundle is not None
-    assert bundle.status == "review"
+    assert bundle.status == "needs_revision"
 
 
 def test_review_proposal_invalid_status(tmp_path: Path) -> None:
@@ -589,7 +589,7 @@ def test_review_proposal_invalid_status(tmp_path: Path) -> None:
     from rutter.proposals import ProposalValidationError, review_proposal, submit_proposal
 
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="bad-status", status="draft",
+        schema_version="1", bundle_id="bad-status", status="proposed",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="test", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -604,7 +604,7 @@ def test_review_proposal_not_found(tmp_path: Path) -> None:
     from rutter.proposals import ProposalValidationError, review_proposal
 
     with pytest.raises(ProposalValidationError) as exc:
-        review_proposal(tmp_path, "nonexistent", "approved")
+        review_proposal(tmp_path, "nonexistent", "accepted")
     assert any("not found" in e for e in exc.value.errors)
 
 
@@ -625,7 +625,7 @@ def test_cli_propose_creates_file(tmp_path: Path) -> None:
         "--action", "create_new_skill",
         "--new-skill-id", "cli_test_skill",
         "--risk-level", "low",
-        "--status", "draft",
+        "--status", "proposed",
         "--created-at", "2026-05-02T00:00:00Z",
     ])
     assert exit_code == 0
@@ -667,7 +667,7 @@ def test_cli_list_proposals_with_data(tmp_path: Path, capsys) -> None:
 
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-list-001", status="draft",
+        schema_version="1", bundle_id="cli-list-001", status="proposed",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="test", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -690,7 +690,7 @@ def test_cli_get_proposal_found(tmp_path: Path, capsys) -> None:
 
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-get-001", status="draft",
+        schema_version="1", bundle_id="cli-get-001", status="proposed",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="test", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -727,7 +727,7 @@ def test_promote_proposal_rejects_non_accepted(tmp_path: Path) -> None:
     from rutter.proposals import ProposalValidationError, promote_proposal, submit_proposal
 
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="promote-draft", status="draft",
+        schema_version="1", bundle_id="promote-draft", status="proposed",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="test", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -747,15 +747,15 @@ def test_promote_proposal_rejects_not_found(tmp_path: Path) -> None:
 
 
 def test_promote_proposal_creates_plan_for_create_new_skill(tmp_path: Path) -> None:
-    from rutter.models import SkillProposalBundle
+    from rutter.models import EvidenceRef, SkillProposalBundle
     from rutter.proposals import promote_proposal, submit_proposal
 
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="promote-create", status="accepted",
+        schema_version="1", bundle_id="promote-create", status="accepted",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="game_migration_asset_optimizer", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
-        evidence_refs=("skills/game-migration/asset-optimizer.md",),
+        evidence_refs=(EvidenceRef(path="skills/game-migration/asset-optimizer.md"),),
     ), tmp_path)
 
     plan = promote_proposal(tmp_path, "promote-create")
@@ -779,7 +779,7 @@ def test_promote_proposal_creates_plan_for_update_existing_skill(tmp_path: Path)
     from rutter.proposals import promote_proposal, submit_proposal
 
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="promote-update", status="accepted",
+        schema_version="1", bundle_id="promote-update", status="accepted",
         target_family="game-migration", action="update_existing_skill",
         target_skill_id="game_migration_verify", risk_level="medium",
         created_at="2026-05-02T00:00:00Z",
@@ -802,7 +802,7 @@ def test_promote_proposal_plan_includes_v0_1_note(tmp_path: Path) -> None:
     from rutter.proposals import promote_proposal, submit_proposal
 
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="promote-v01", status="accepted",
+        schema_version="1", bundle_id="promote-v01", status="accepted",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="test_skill", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -822,7 +822,7 @@ def test_promote_proposal_resolves_registry_target_version(tmp_path: Path) -> No
     from rutter.proposals import promote_proposal, submit_proposal
 
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="promote-registry", status="accepted",
+        schema_version="1", bundle_id="promote-registry", status="accepted",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="test_skill", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -843,7 +843,7 @@ def test_cli_promote_proposal_accepted(capsys, tmp_path: Path) -> None:
 
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-promote-001", status="accepted",
+        schema_version="1", bundle_id="cli-promote-001", status="accepted",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="cli_skill", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -869,7 +869,7 @@ def test_cli_promote_proposal_rejects_non_accepted(capsys, tmp_path: Path) -> No
 
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-promote-draft", status="draft",
+        schema_version="1", bundle_id="cli-promote-draft", status="proposed",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="cli_skill", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -906,7 +906,7 @@ def test_cli_promote_proposal_with_registry_resolves_version(capsys, tmp_path: P
     PROJECT_ROOT = Path(__file__).resolve().parents[1]
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-promote-v", status="accepted",
+        schema_version="1", bundle_id="cli-promote-v", status="accepted",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="versioned_skill", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -932,7 +932,7 @@ def test_cli_promote_proposal_with_registry_rejects_non_accepted(capsys, tmp_pat
     PROJECT_ROOT = Path(__file__).resolve().parents[1]
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-promote-rej", status="rejected",
+        schema_version="1", bundle_id="cli-promote-rej", status="rejected",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="rejected_skill", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -957,7 +957,7 @@ def test_cli_promote_proposal_with_accepted_and_registry(capsys, tmp_path: Path)
     PROJECT_ROOT = Path(__file__).resolve().parents[1]
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-promote-full", status="accepted",
+        schema_version="1", bundle_id="cli-promote-full", status="accepted",
         target_family="game-migration", action="update_existing_skill",
         target_skill_id="game_migration_verify", risk_level="medium",
         created_at="2026-05-02T00:00:00Z",
@@ -998,7 +998,7 @@ def test_cli_promote_proposal_with_accepted_create_skill_with_registry(capsys, t
     PROJECT_ROOT = Path(__file__).resolve().parents[1]
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-promote-create-001", status="accepted",
+        schema_version="1", bundle_id="cli-promote-create-001", status="accepted",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="game_migration_new_feature", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -1028,7 +1028,7 @@ def test_cli_promote_proposal_with_accepted_update_skill_with_registry(capsys, t
     PROJECT_ROOT = Path(__file__).resolve().parents[1]
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-promote-update-001", status="accepted",
+        schema_version="1", bundle_id="cli-promote-update-001", status="accepted",
         target_family="game-migration", action="update_existing_skill",
         target_skill_id="game_migration_verify", risk_level="high",
         created_at="2026-05-02T00:00:00Z",
@@ -1055,7 +1055,7 @@ def test_cli_promote_proposal_without_proposal_dir_uses_default(tmp_path: Path, 
 
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-default-dir", status="accepted",
+        schema_version="1", bundle_id="cli-default-dir", status="accepted",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="default_skill", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -1079,7 +1079,7 @@ def test_cli_promote_proposal_with_v0_1_note(tmp_path: Path, capsys) -> None:
 
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-v01-note", status="accepted",
+        schema_version="1", bundle_id="cli-v01-note", status="accepted",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="note_skill", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -1106,7 +1106,7 @@ def test_cli_promote_proposal_generates_yaml_output(tmp_path: Path, capsys) -> N
 
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-yaml-test", status="accepted",
+        schema_version="1", bundle_id="cli-yaml-test", status="accepted",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="yaml_test_skill", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -1137,7 +1137,7 @@ def test_cli_promote_proposal_unknown_family_with_registry(tmp_path: Path, capsy
     PROJECT_ROOT = Path(__file__).resolve().parents[1]
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-unknown-family", status="accepted",
+        schema_version="1", bundle_id="cli-unknown-family", status="accepted",
         target_family="nonexistent-family", action="create_new_skill",
         new_skill_id="unknown_skill", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -1161,7 +1161,7 @@ def test_cli_promote_proposal_approved_is_not_accepted(capsys, tmp_path: Path) -
 
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-approved-not-accepted", status="approved",
+        schema_version="1", bundle_id="cli-approved-not-accepted", status="proposed",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="approved_skill", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -1184,7 +1184,7 @@ def test_cli_promote_proposal_review_is_not_accepted(capsys, tmp_path: Path) -> 
 
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-review-not-accepted", status="review",
+        schema_version="1", bundle_id="cli-review-not-accepted", status="needs_revision",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="review_skill", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -1219,7 +1219,7 @@ def test_cli_promote_proposal_rejected_is_not_accepted(capsys, tmp_path: Path) -
 
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-rejected-not-accepted", status="rejected",
+        schema_version="1", bundle_id="cli-rejected-not-accepted", status="rejected",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="rejected_skill", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -1242,7 +1242,7 @@ def test_cli_promote_proposal_draft_is_not_accepted(capsys, tmp_path: Path) -> N
 
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-draft-not-accepted", status="draft",
+        schema_version="1", bundle_id="cli-draft-not-accepted", status="proposed",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="draft_skill", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -1267,7 +1267,7 @@ def test_cli_promote_proposal_update_skill_with_registry_version(tmp_path: Path,
     PROJECT_ROOT = Path(__file__).resolve().parents[1]
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-promote-update-v2", status="accepted",
+        schema_version="1", bundle_id="cli-promote-update-v2", status="accepted",
         target_family="portolan-integration", action="update_existing_skill",
         target_skill_id="portolan_integration_hermes_bootstrap", risk_level="medium",
         created_at="2026-05-02T00:00:00Z",
@@ -1295,7 +1295,7 @@ def test_cli_promote_proposal_create_with_registry_uses_correct_ops(tmp_path: Pa
     PROJECT_ROOT = Path(__file__).resolve().parents[1]
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-promote-create-ops", status="accepted",
+        schema_version="1", bundle_id="cli-promote-create-ops", status="accepted",
         target_family="portolan-integration", action="create_new_skill",
         new_skill_id="portolan_integration_new_tool", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -1323,7 +1323,7 @@ def test_cli_promote_proposal_create_with_missing_registry_graceful(tmp_path: Pa
 
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-promote-no-reg", status="accepted",
+        schema_version="1", bundle_id="cli-promote-no-reg", status="accepted",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="no_reg_skill", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -1356,15 +1356,15 @@ def test_cli_promote_proposal_empty_proposal_dir(tmp_path: Path, capsys) -> None
 def test_cli_promote_proposal_update_existing_skill_with_evidence_refs(tmp_path: Path, capsys) -> None:
     """Promotion plan for update_existing_skill includes evidence refs."""
     from rutter.cli import main
-    from rutter.models import SkillProposalBundle
+    from rutter.models import EvidenceRef, SkillProposalBundle
     from rutter.proposals import submit_proposal
 
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-evidence-update", status="accepted",
+        schema_version="1", bundle_id="cli-evidence-update", status="accepted",
         target_family="game-migration", action="update_existing_skill",
         target_skill_id="game_migration_verify", risk_level="medium",
-        evidence_refs=("skills/game-migration/verify-update.md",),
+        evidence_refs=(EvidenceRef(path="skills/game-migration/verify-update.md"),),
         created_at="2026-05-02T00:00:00Z",
     ), proposal_dir)
 
@@ -1388,19 +1388,19 @@ def test_cli_promote_proposal_multiple_proposals_one_accepted(tmp_path: Path, ca
 
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="proposal-draft", status="draft",
+        schema_version="1", bundle_id="proposal-draft", status="proposed",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="draft_skill", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
     ), proposal_dir)
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="proposal-accepted", status="accepted",
+        schema_version="1", bundle_id="proposal-accepted", status="accepted",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="accepted_skill", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
     ), proposal_dir)
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="proposal-rejected", status="rejected",
+        schema_version="1", bundle_id="proposal-rejected", status="rejected",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="rejected_skill", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -1429,7 +1429,7 @@ def test_cli_promote_proposal_create_new_skill_with_registry_and_supporting_issu
     PROJECT_ROOT = Path(__file__).resolve().parents[1]
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-promote-issues", status="accepted",
+        schema_version="1", bundle_id="cli-promote-issues", status="accepted",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="issue_skill", risk_level="low",
         supporting_issues=("ISSUE-123", "ISSUE-456"),
@@ -1463,7 +1463,7 @@ def test_cli_promote_proposal_with_real_registry_preserves_registry(tmp_path: Pa
     pre_errors = validate_registry(PROJECT_ROOT / "registry")
 
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-promote-safe", status="accepted",
+        schema_version="1", bundle_id="cli-promote-safe", status="accepted",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="safe_skill", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -1491,7 +1491,7 @@ def test_cli_promote_proposal_includes_structured_output(tmp_path: Path, capsys)
 
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-structured", status="accepted",
+        schema_version="1", bundle_id="cli-structured", status="accepted",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="structured_skill", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -1524,7 +1524,7 @@ def test_cli_promote_proposal_risk_level_in_plan(tmp_path: Path, capsys) -> None
 
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-risk-test", status="accepted",
+        schema_version="1", bundle_id="cli-risk-test", status="accepted",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="risk_test_skill", risk_level="high",
         created_at="2026-05-02T00:00:00Z",
@@ -1549,7 +1549,7 @@ def test_cli_promote_proposal_with_default_proposal_dir(tmp_path: Path, capsys) 
 
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-default-proposals-dir", status="accepted",
+        schema_version="1", bundle_id="cli-default-proposals-dir", status="accepted",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="default_proposal_skill", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -1588,7 +1588,7 @@ def test_cli_promote_proposal_with_registry_and_portolan_family(tmp_path: Path, 
     PROJECT_ROOT = Path(__file__).resolve().parents[1]
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-portolan-promote", status="accepted",
+        schema_version="1", bundle_id="cli-portolan-promote", status="accepted",
         target_family="portolan-integration", action="create_new_skill",
         new_skill_id="portolan_integration_new_capability", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -1620,7 +1620,7 @@ def test_cli_promote_proposal_registry_is_read_only(tmp_path: Path, capsys) -> N
     proposal_dir = tmp_path / "proposals"
 
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-readonly-check", status="accepted",
+        schema_version="1", bundle_id="cli-readonly-check", status="accepted",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="readonly_check_skill", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -1653,7 +1653,7 @@ def test_cli_promote_proposal_with_registry_and_version_in_output(tmp_path: Path
     PROJECT_ROOT = Path(__file__).resolve().parents[1]
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-version-check", status="accepted",
+        schema_version="1", bundle_id="cli-version-check", status="accepted",
         target_family="portolan-integration", action="create_new_skill",
         new_skill_id="version_check_skill", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -1681,7 +1681,7 @@ def test_cli_promote_proposal_with_registry_and_game_migration_version(tmp_path:
     PROJECT_ROOT = Path(__file__).resolve().parents[1]
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-game-mig-version", status="accepted",
+        schema_version="1", bundle_id="cli-game-mig-version", status="accepted",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="game_migration_new_verification", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -1708,7 +1708,7 @@ def test_cli_promote_proposal_update_existing_skill_with_registry_path(tmp_path:
     PROJECT_ROOT = Path(__file__).resolve().parents[1]
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-update-path", status="accepted",
+        schema_version="1", bundle_id="cli-update-path", status="accepted",
         target_family="game-migration", action="update_existing_skill",
         target_skill_id="game_migration_verify", risk_level="medium",
         created_at="2026-05-02T00:00:00Z",
@@ -1735,7 +1735,7 @@ def test_cli_promote_proposal_update_existing_skill_with_registry_path_portolan(
     PROJECT_ROOT = Path(__file__).resolve().parents[1]
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-update-path-portolan", status="accepted",
+        schema_version="1", bundle_id="cli-update-path-portolan", status="accepted",
         target_family="portolan-integration", action="update_existing_skill",
         target_skill_id="portolan_integration_hermes_bootstrap", risk_level="medium",
         created_at="2026-05-02T00:00:00Z",
@@ -1762,7 +1762,7 @@ def test_cli_promote_proposal_create_skill_with_registry_path(tmp_path: Path, ca
     PROJECT_ROOT = Path(__file__).resolve().parents[1]
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-create-path", status="accepted",
+        schema_version="1", bundle_id="cli-create-path", status="accepted",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="game_migration_awesome_feature", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -1791,7 +1791,7 @@ def test_cli_promote_proposal_create_skill_with_registry_path_portolan(tmp_path:
     PROJECT_ROOT = Path(__file__).resolve().parents[1]
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-create-path-portolan", status="accepted",
+        schema_version="1", bundle_id="cli-create-path-portolan", status="accepted",
         target_family="portolan-integration", action="create_new_skill",
         new_skill_id="portolan_integration_awesome_feature", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -1817,7 +1817,7 @@ def test_cli_promote_proposal_create_and_update_operations_mutually_exclusive(tm
 
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-create-only", status="accepted",
+        schema_version="1", bundle_id="cli-create-only", status="accepted",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="create_only_skill", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -1848,7 +1848,7 @@ def test_cli_promote_proposal_update_only_has_update_ops(tmp_path: Path, capsys)
 
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-update-only", status="accepted",
+        schema_version="1", bundle_id="cli-update-only", status="accepted",
         target_family="game-migration", action="update_existing_skill",
         target_skill_id="game_migration_verify", risk_level="medium",
         created_at="2026-05-02T00:00:00Z",
@@ -1881,7 +1881,7 @@ def test_cli_promote_proposal_update_shows_correct_registry_path(tmp_path: Path,
     PROJECT_ROOT = Path(__file__).resolve().parents[1]
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-update-reg-path", status="accepted",
+        schema_version="1", bundle_id="cli-update-reg-path", status="accepted",
         target_family="game-migration", action="update_existing_skill",
         target_skill_id="game_migration_verify", risk_level="medium",
         created_at="2026-05-02T00:00:00Z",
@@ -1912,7 +1912,7 @@ def test_cli_promote_proposal_create_shows_correct_registry_manifest_path(tmp_pa
     PROJECT_ROOT = Path(__file__).resolve().parents[1]
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-create-manifest-path", status="accepted",
+        schema_version="1", bundle_id="cli-create-manifest-path", status="accepted",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="manifest_path_skill", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -1944,7 +1944,7 @@ def test_cli_promote_proposal_create_shows_correct_registry_manifest_path_portol
     PROJECT_ROOT = Path(__file__).resolve().parents[1]
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-create-manifest-path-portolan", status="accepted",
+        schema_version="1", bundle_id="cli-create-manifest-path-portolan", status="accepted",
         target_family="portolan-integration", action="create_new_skill",
         new_skill_id="portolan_new_manifest_skill", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -1975,7 +1975,7 @@ def test_cli_promote_proposal_create_shows_correct_registry_manifest_path_portol
     PROJECT_ROOT = Path(__file__).resolve().parents[1]
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-create-manifest-path-portolan-2", status="accepted",
+        schema_version="1", bundle_id="cli-create-manifest-path-portolan-2", status="accepted",
         target_family="portolan-integration", action="create_new_skill",
         new_skill_id="portolan_manifest_skill_2", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -2003,7 +2003,7 @@ def test_cli_promote_proposal_create_shows_correct_registry_manifest_path_game_m
     PROJECT_ROOT = Path(__file__).resolve().parents[1]
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-create-manifest-path-game", status="accepted",
+        schema_version="1", bundle_id="cli-create-manifest-path-game", status="accepted",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="game_new_manifest_skill", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -2031,7 +2031,7 @@ def test_cli_promote_proposal_create_shows_correct_registry_manifest_path_game_v
     PROJECT_ROOT = Path(__file__).resolve().parents[1]
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-create-manifest-path-game-v2", status="accepted",
+        schema_version="1", bundle_id="cli-create-manifest-path-game-v2", status="accepted",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="game_v2_manifest_skill", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -2056,7 +2056,7 @@ def test_cli_review_proposal_updates_status(tmp_path: Path, capsys) -> None:
 
     proposal_dir = tmp_path / "proposals"
     submit_proposal(SkillProposalBundle(
-        schema_version="v1", bundle_id="cli-review-001", status="draft",
+        schema_version="1", bundle_id="cli-review-001", status="proposed",
         target_family="game-migration", action="create_new_skill",
         new_skill_id="test", risk_level="low",
         created_at="2026-05-02T00:00:00Z",
@@ -2065,7 +2065,7 @@ def test_cli_review_proposal_updates_status(tmp_path: Path, capsys) -> None:
     exit_code = main([
         "review-proposal",
         "cli-review-001",
-        "--status", "approved",
+        "--status", "accepted",
         "--path", str(tmp_path),
         "--proposal-dir", str(proposal_dir),
     ])
@@ -2073,5 +2073,5 @@ def test_cli_review_proposal_updates_status(tmp_path: Path, capsys) -> None:
 
     bundle = get_proposal(proposal_dir, "cli-review-001")
     assert bundle is not None
-    assert bundle.status == "approved"
+    assert bundle.status == "accepted"
 

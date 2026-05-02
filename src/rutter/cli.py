@@ -138,7 +138,7 @@ def main(argv: list[str] | None = None) -> int:
         registry_root = args.path
 
         proposal = SkillProposalBundle(
-            schema_version="v1",
+            schema_version="1",
             bundle_id=args.bundle_id,
             status=args.status,
             target_family=args.target_family,
@@ -322,8 +322,8 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     propose_parser.add_argument("--bundle-id", required=True, help="Unique bundle identifier")
     propose_parser.add_argument(
-        "--status", default="draft", choices=sorted(VALID_PROPOSAL_STATUSES),
-        help="Proposal status (default: draft)"
+        "--status", default="proposed", choices=sorted(VALID_PROPOSAL_STATUSES),
+        help="Proposal status (default: proposed)"
     )
     propose_parser.add_argument(
         "--target-family", required=True, help="Target skill family in the registry"

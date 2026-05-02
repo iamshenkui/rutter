@@ -1,6 +1,6 @@
-schema_version: v1
+schema_version: "1"
 bundle_id: proposal-20260502-valid-update-001
-status: draft
+status: proposed
 target_family: game-migration
 action: update_existing_skill
 risk_level: high
@@ -9,4 +9,5 @@ target_skill_id: game_migration_verify
 supporting_issues:
   - "ISSUE-202"
 evidence_refs:
-  - "skills/game-migration/verify-enhancement.md"
+  - path: skills/game-migration/verify-enhancement.md
+    description: "Verification enhancement evidence"

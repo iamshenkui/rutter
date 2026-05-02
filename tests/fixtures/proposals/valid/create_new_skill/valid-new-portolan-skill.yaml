@@ -1,6 +1,6 @@
-schema_version: v1
+schema_version: "1"
 bundle_id: proposal-20260502-valid-new-002
-status: review
+status: proposed
 target_family: portolan-integration
 action: create_new_skill
 risk_level: medium
