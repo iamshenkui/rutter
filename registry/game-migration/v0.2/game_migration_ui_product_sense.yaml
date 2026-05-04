@@ -8,6 +8,8 @@ incremental_rules:
   - Reject generic web layouts such as dashboard cards, marketing hero sections, or long scrolling pages for core loops.
   - Treat text-only placeholders, missing icons, and absent game art as incomplete migration for asset-backed screens.
   - Validate migrated UI by opening the screen, clicking representative interactions, and checking for layout breakage or console errors.
+  - Separate interaction completeness from fidelity completeness on migration reviews; a usable screen proves the interaction path exists, not that visual migration is faithful.
+  - When source-backed UI exists, reject completion claims that leave the screen functionally usable but visually web-like or approximate.
   - For DDGC town and meta screens, preserve character identity, building iconography, and loadout preparation affordances.
 dependencies:
   - game_migration_core

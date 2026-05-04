@@ -30,6 +30,8 @@ skills:
     file: game_migration_plan.yaml
   - id: game_migration_ui_product_sense
     file: game_migration_ui_product_sense.yaml
+  - id: game_migration_ui_layout_fidelity
+    file: game_migration_ui_layout_fidelity.yaml
   - id: game_migration_unity_ui_recon
     file: game_migration_unity_ui_recon.yaml
   - id: game_migration_verify

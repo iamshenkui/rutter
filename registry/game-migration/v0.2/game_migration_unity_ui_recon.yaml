@@ -6,8 +6,11 @@ incremental_rules:
   - Name the exact Unity screen or flow in scope before starting frontend edits.
   - Inspect prefabs, scenes, scripts, sprites, sprite atlas assets, Spine assets, and localization files before designing replacement UI.
   - Reconstruct the original hierarchy, RectTransform layout, sorting order, and interactive targets before coding.
+  - Identify the owning scene hierarchy, persistent shell chrome, top, bottom, and side groupings, and which panels are always-on layers versus local windows.
   - Build an asset manifest that maps original paths, identifiers, and intended frontend usage for every important visual element.
   - Produce a migration brief that records inspected source files, hierarchy findings, fidelity risks, and browser acceptance steps.
+  - When screenshot fidelity is in scope, the migration brief must include the screenshot acceptance expectation, required routing tags, and browser verification expectation.
+  - Before frontend reconstruction starts, answer which source nodes own the screen shell and which source nodes own the screen content.
   - Treat missing original assets or unknown source structure as blockers instead of substituting generic web UI.
 dependencies:
   - game_migration_core
