@@ -28,6 +28,7 @@ families:
   - game_migration_core
   - game_migration_migrate
   - game_migration_plan
+  - game_migration_ui_layout_fidelity
   - game_migration_ui_product_sense
   - game_migration_unity_ui_recon
   - game_migration_verify

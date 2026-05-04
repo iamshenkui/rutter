@@ -1,0 +1,20 @@
+id: game_migration_ui_layout_fidelity
+name: Game Migration UI Layout Fidelity
+description: Translate extracted Unity UI layout into a source-faithful frontend by preserving canvas behavior, panel chrome, slot frames, layering, and source-backed screen grouping instead of only copying coordinates.
+category: execution
+incremental_rules:
+  - Do not treat Unity coordinate extraction as complete layout fidelity; also translate anchors, pivots, panel chrome, slot frames, label offsets, and grouping.
+  - Preserve the original screen's reference canvas or equivalent scaling model instead of converting the whole UI into free-floating percentage layout.
+  - Rebuild top panel, main surface, and bottom panel as separate source-backed layers before polishing local elements.
+  - Do not accept a migrated screen where source-backed central content is present but surrounding chrome such as top panels, bottom panels, side buttons, currency strips, or label backplates is still hand-made CSS approximation.
+  - Reuse source panel, button, and slot art where it exists and reject generic CSS card replacements on asset-backed screens.
+  - Preserve source-backed odd mappings until contrary evidence is found in the owning Unity scene or prefab.
+  - If screenshot-guided parity is required but the task has not been routed to a vision-capable execution path, mark that as process risk before claiming fidelity completion.
+  - Confirm browser validation is hitting the intended current server or build rather than a stale preview process.
+  - Browser validation for fidelity must record the server type, port or entrypoint, dev versus preview mode, and whether the latest bundle was loaded.
+  - Acceptance must distinguish coordinate correctness, chrome completeness, and hierarchy fidelity; coordinate correctness alone is not completion.
+  - For DDGC town work, treat `EstateManagement.unity` as authoritative and preserve the small top estate panel, central estate surface, and bottom embark or roster panel grouping.
+dependencies:
+  - game_migration_core
+  - game_migration_unity_ui_recon
+  - game_migration_ui_product_sense
