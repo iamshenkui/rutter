@@ -1,3 +1,8 @@
+---
+name: game-migration-ui-layout-fidelity
+description: Translate extracted Unity UI layout into a source-faithful frontend by preserving canvas behavior, panel chrome, slot frames, layering, and source-backed screen grouping instead of only copying coordinates.
+---
+
 # Game Migration UI Layout Fidelity
 
 Use this skill after Unity UI recon is complete but the migrated frontend still

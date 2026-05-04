@@ -1,3 +1,8 @@
+---
+name: game-migration-ui-product-sense
+description: Keep migrated game UI feeling like a game surface rather than a generic web page, especially for HUD, town, roster, inventory, and launch flows.
+---
+
 # Game Migration UI Product Sense
 
 Use this skill whenever a migration phase touches player-facing game UI.

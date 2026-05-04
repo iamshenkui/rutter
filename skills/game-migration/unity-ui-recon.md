@@ -1,3 +1,8 @@
+---
+name: game-migration-unity-ui-recon
+description: Force a source-first workflow for Unity UI migration by inspecting prefabs, scenes, sprites, sprite atlas assets, and related source files before implementing frontend UI.
+---
+
 # Game Migration Unity UI Recon
 
 Use this skill before implementing or reviewing frontend migration of a Unity UI.
